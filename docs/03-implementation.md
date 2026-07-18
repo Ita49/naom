@@ -10,26 +10,26 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 ## 0. Prerequisites (do before M0)
 
-- [ ] Create a Supabase project (free tier is sufficient for ~120 members).
-- [ ] Create a Vercel account and connect it to the repo (GitHub recommended so pushes auto-deploy).
-- [ ] Decide on a project/repo name (e.g. `naom-dues` — adjust if the association has a different short name than the folder suggests).
-- [ ] Have the Supabase project URL + anon key + service role key ready (Settings → API).
+- [x] Create a Supabase project (free tier is sufficient for ~120 members). — project `naom` (ref `qiugmfjepbfkldwdjsno`), region `eu-central-1`.
+- [x] Create a Vercel account and connect it to the repo (GitHub recommended so pushes auto-deploy). — repo `github.com/Ita49/naom`, Vercel project `itagodwin-4463s-projects/naom`.
+- [x] Decide on a project/repo name (e.g. `naom-dues` — adjust if the association has a different short name than the folder suggests). — `naom`.
+- [x] Have the Supabase project URL + anon key + service role key ready (Settings → API). — in `.env.local` (gitignored) and mirrored into Vercel's Production/Preview/Development env vars.
 
 ---
 
-## M0 — Project Setup
+## M0 — Project Setup ✅ Complete (2026-07-18)
 
 **Goal:** empty-but-real app deployed and reachable on a phone.
 
-1. Scaffold: `npx create-next-app@latest` — TypeScript, App Router, Tailwind CSS, `src/` directory, ESLint.
-2. Install & init `shadcn/ui`; pull in the base component set we'll need early: `button`, `card`, `badge`, `input`, `form`, `dialog`, `table`, `avatar`, `toast`/`sonner`.
-3. Install `@supabase/supabase-js` and `@supabase/ssr` for server/client Supabase clients.
-4. Set up env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only, never exposed to client). Add `.env.local` to `.gitignore` (verify it's there by default).
-5. PWA skeleton: `manifest.json` (name, short_name, icons — placeholder icon until logo arrives, theme_color/background_color using the placeholder palette from plan §4), a minimal service worker (can start with `next-pwa` or a hand-written one — prefer `next-pwa` for speed, it's a well-trodden path).
-6. Apply the placeholder design tokens from plan §4 into `tailwind.config.ts` (extend the color palette with named tokens: `primary`, `accent`, `supporting`, plus semantic `status-paid`/`status-partial`/`status-overdue`) — reference tokens by name everywhere, not raw hex, so the eventual logo-driven palette swap is a one-file change.
-7. Deploy to Vercel, connect env vars there too. Confirm the empty app loads on a phone and "Add to Home Screen" works.
+1. [x] Scaffold: `npx create-next-app@latest` — TypeScript, App Router, Tailwind CSS, `src/` directory, ESLint.
+2. [x] Install & init `shadcn/ui`; pull in the base component set we'll need early: `button`, `card`, `badge`, `input`, `form`, `dialog`, `table`, `avatar`, `toast`/`sonner`. (Shadcn's `form` component is deprecated upstream in favor of `field` — installed `field` + `label` instead, same purpose.)
+3. [x] Install `@supabase/supabase-js` and `@supabase/ssr` for server/client Supabase clients. Browser/server/middleware helpers live in `src/lib/supabase/`.
+4. [x] Set up env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only, never exposed to client). Add `.env.local` to `.gitignore` (verify it's there by default).
+5. [x] PWA skeleton: `manifest.json` (name, short_name, icons — placeholder icon until logo arrives, theme_color/background_color using the placeholder palette from plan §4), a minimal service worker. Hand-written instead of `next-pwa`: this scaffold defaults to Turbopack, which `next-pwa`'s webpack plugin doesn't support.
+6. [x] Apply the placeholder design tokens from plan §4 (Tailwind v4 uses CSS-based theming, so tokens live in `src/app/globals.css` rather than `tailwind.config.ts` — same effect, named tokens: `primary`, `accent`, `supporting`, `status-paid`/`status-partial`/`status-overdue`) — reference tokens by name everywhere, not raw hex, so the eventual logo-driven palette swap is a one-file change.
+7. [x] Deploy to Vercel, connect env vars there too. Confirmed live at https://naom-one.vercel.app — home page, manifest, and service worker all verified reachable (200s) after wiring the env vars (first deploy 500'd on every route because the Vercel project had no env vars configured yet — fixed by adding them via `vercel env add` across Production/Preview/Development and redeploying).
 
-**Demo check:** app is live at a URL, installable, shows a placeholder home page styled with the brand tokens.
+**Demo check:** ✅ app is live at https://naom-one.vercel.app, installable, shows a placeholder home page styled with the brand tokens. Verified programmatically (home/manifest/service worker all 200); user to confirm phone "Add to Home Screen" install directly.
 
 ---
 
