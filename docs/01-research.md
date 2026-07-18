@@ -40,6 +40,7 @@ This breaks down as membership grows because:
 | **Member** | Regular association member paying monthly dues | See own status/history, submit a receipt, get reminders |
 | **Treasurer/Admin** | Verifies receipts, manages member records | Dashboard of who's paid/owed, verify/reject submissions, adjust records for edge cases (e.g. cash payments, corrections) |
 | **Exco/Super Admin** (optional, may = Admin initially) | Oversight role | Reports/exports, manage admins, configure dues amount & cycle |
+| **Bar Attendant** (Phase 2, see §5) | Staff at the mess bar | Restricted, write-only-ish access to log a drink served against a member's name — should *not* see dues/payment data; a distinct permission scope from Admin, not a rename of it |
 
 For an MVP, Admin and Super Admin can be the same role; splitting them is a cheap Phase 2 addition once the permission model exists.
 
@@ -73,6 +74,7 @@ This allocation model is the one piece of domain design worth getting right befo
 - WhatsApp-native reminders (see §7) instead of/alongside push.
 - Multiple admins with an audit log of who verified what.
 - Online payment gateway integration (Paystack/Flutterwave) as an *alternative* to manual receipt upload, not a replacement.
+- **Bar consumption tracking.** The mess bar is a distinct social hub from dues collection: members sit, relax, and buy drinks/liquor. Idea is to let a bar attendant log what a member is served (brand, quantity) at time of service, so that over time each member can see their own consumption history, and the association can surface it as lighthearted trivia/leaderboards ("who's drinking the most"). This is a genuinely separate domain from Payment/Allocation (§4) — a new Member-linked "drink served" record, not a dues-payment variant — and needs its own restricted write role (Bar Attendant, added to §3) rather than reusing the Admin role. Fun/social feature, not financial record-keeping, so it doesn't inherit the same auditability/RLS strictness as payments — worth a lighter design pass when it's picked up.
 
 ## 6. Non-Functional Requirements
 

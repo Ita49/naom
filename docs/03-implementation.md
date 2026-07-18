@@ -137,7 +137,7 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 - **Testing approach:** given the small scale (~120 members, 2 admins), full E2E test infrastructure is likely overkill for MVP. Prioritize: (a) unit tests for the allocation logic (oldest-unpaid-first computation, partial-payment math) since it's the trickiest and most bug-prone piece, (b) manual QA per milestone's demo check above, (c) direct RLS verification (M1) since a policy bug is a data-leak, not just a UI bug.
 - **Commit discipline:** commit at the end of each milestone, not mid-milestone — keeps the history matching this document's structure and makes it easy to see what shipped when.
-- **Scope discipline:** anything not in M0–M7 (online payment gateway, WhatsApp Cloud API reminders, multi-admin roles/audit log, exports/reports) is explicitly Phase 2 per `01-research.md` §5/§7 — resist pulling it forward mid-build.
+- **Scope discipline:** anything not in M0–M7 (online payment gateway, WhatsApp Cloud API reminders, multi-admin roles/audit log, exports/reports, bar consumption tracking + Bar Attendant role — see `02-plan.md` §6a) is explicitly Phase 2 per `01-research.md` §5/§7 — resist pulling it forward mid-build.
 
 ## Definition of Done (MVP)
 

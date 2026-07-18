@@ -159,6 +159,26 @@ Sequenced so each milestone leaves a demoable, working slice — not a big-bang 
 | **M6 — Notifications** | Web push for the three MVP notification types, permission-prompt onboarding | M2, M3 |
 | **M7 — Polish & install** | PWA installability pass (icons, splash, offline fallback), design-token pass once logo/colors are final, empty states, error states | All above |
 
+## 6a. Future Extension (Phase 2, not scheduled): Bar Consumption Tracking
+
+Per `01-research.md` §5, deliberately out of scope for M0–M7 — noted here only so the eventual schema/role addition isn't a surprise later. Not a commitment to build, and none of the below should be pulled forward into an earlier milestone.
+
+- **New role — Bar Attendant.** Can write drink-served entries against a member; cannot read `payments`/`payment_allocations`/dues data. This means the RLS model from M1 will need a third role (today it's just member vs. admin), so §2's `admins.role` check-constraint (currently a single `'admin'` value) is the likely extension point rather than a brand-new table — worth keeping in mind, not acting on now.
+- **New table (sketch, not final):**
+  ```sql
+  bar_orders (
+    id uuid pk,
+    member_id uuid references members,
+    brand text,
+    quantity numeric,          -- unit TBD (bottles/shots/ml) — resolve when this is scoped
+    served_at timestamptz,
+    served_by uuid references admins,  -- or a new bar_attendants table if the role splits fully
+    created_at timestamptz
+  )
+  ```
+- Powers a per-member consumption history view and a lighthearted leaderboard/trivia view ("who's had the most") — social/fun feature, not a financial record, so it likely doesn't need the same auditability rigor as `payments`.
+- Genuinely independent of the Payment/Allocation/Period model (§2) — no schema coupling expected beyond sharing `members`.
+
 ## 7. Risks / Watch-items
 
 - **iOS web push** requires the PWA to be added to home screen first; onboarding copy needs to explicitly walk members through "Add to Home Screen" or reminders silently won't reach iPhone users.
