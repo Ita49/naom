@@ -1,0 +1,157 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-supporting-foreground: var(--supporting-foreground);
+  --color-supporting: var(--supporting);
+  --color-status-paid-foreground: var(--status-paid-foreground);
+  --color-status-paid: var(--status-paid);
+  --color-status-partial-foreground: var(--status-partial-foreground);
+  --color-status-partial: var(--status-partial);
+  --color-status-overdue-foreground: var(--status-overdue-foreground);
+  --color-status-overdue: var(--status-overdue);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Placeholder brand palette — see docs/02-plan.md §4. Swap these hex
+     values for the real logo-derived palette; every component references
+     the named tokens below, never raw hex, so that swap is one-file. */
+  --background: #f5f0e6;
+  --foreground: #1a1512;
+  --card: #fbf8f2;
+  --card-foreground: #1a1512;
+  --popover: #fbf8f2;
+  --popover-foreground: #1a1512;
+  --primary: #5c0a1e;
+  --primary-foreground: #f5f0e6;
+  --secondary: #ede6d8;
+  --secondary-foreground: #1a1512;
+  --muted: #ede6d8;
+  --muted-foreground: #6b5f52;
+  --accent: #b8860b;
+  --accent-foreground: #1a1512;
+  --supporting: #2f3b26;
+  --supporting-foreground: #f5f0e6;
+  --status-paid: #2e7d32;
+  --status-paid-foreground: #f5f0e6;
+  --status-partial: #d97706;
+  --status-partial-foreground: #1a1512;
+  --status-overdue: #b3261e;
+  --status-overdue-foreground: #f5f0e6;
+  --destructive: #b3261e;
+  --border: #e0d8c8;
+  --input: #e0d8c8;
+  --ring: #b8860b;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: #fbf8f2;
+  --sidebar-foreground: #1a1512;
+  --sidebar-primary: #5c0a1e;
+  --sidebar-primary-foreground: #f5f0e6;
+  --sidebar-accent: #ede6d8;
+  --sidebar-accent-foreground: #1a1512;
+  --sidebar-border: #e0d8c8;
+  --sidebar-ring: #b8860b;
+}
+
+.dark {
+  --background: #1a1512;
+  --foreground: #f5f0e6;
+  --card: #241d18;
+  --card-foreground: #f5f0e6;
+  --popover: #241d18;
+  --popover-foreground: #f5f0e6;
+  --primary: #8c1230;
+  --primary-foreground: #f5f0e6;
+  --secondary: #2e2620;
+  --secondary-foreground: #f5f0e6;
+  --muted: #2e2620;
+  --muted-foreground: #b8ac9c;
+  --accent: #d4a017;
+  --accent-foreground: #1a1512;
+  --supporting: #4a5a3a;
+  --supporting-foreground: #f5f0e6;
+  --status-paid: #4caf50;
+  --status-paid-foreground: #1a1512;
+  --status-partial: #e0a030;
+  --status-partial-foreground: #1a1512;
+  --status-overdue: #e5534b;
+  --status-overdue-foreground: #1a1512;
+  --destructive: #e5534b;
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: #d4a017;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: #241d18;
+  --sidebar-foreground: #f5f0e6;
+  --sidebar-primary: #8c1230;
+  --sidebar-primary-foreground: #f5f0e6;
+  --sidebar-accent: #2e2620;
+  --sidebar-accent-foreground: #f5f0e6;
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: #d4a017;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
