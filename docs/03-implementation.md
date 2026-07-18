@@ -33,22 +33,25 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 ---
 
-## M1 — Data & Auth
+## M1 — Data & Auth ✅ Complete (2026-07-18)
 
 **Goal:** schema live in Supabase, RLS enforced, both admins can log in.
 
-1. Write SQL migrations for every table in plan §2 (`members`, `admins`, `dues_config`, `contribution_periods`, `payments`, `payment_allocations`, `notifications`). Use Supabase's migration workflow (`supabase/migrations/*.sql`) rather than hand-editing via the dashboard, so schema is version-controlled.
-2. Create the `member_period_status` view (derived status per plan §2 — computed from `payment_allocations` vs `contribution_periods.dues_amount`, never a stored column).
-3. Write RLS policies:
+1. [x] Write SQL migrations for every table in plan §2 (`members`, `admins`, `dues_config`, `contribution_periods`, `payments`, `payment_allocations`, `notifications`). Use Supabase's migration workflow (`supabase/migrations/*.sql`) rather than hand-editing via the dashboard, so schema is version-controlled.
+2. [x] Create the `member_period_status` view (derived status per plan §2 — computed from `payment_allocations` vs `contribution_periods.dues_amount`, never a stored column). Created with `security_invoker = true` — without it, a Postgres view runs as its owner and silently bypasses RLS on the tables it queries.
+3. [x] Write RLS policies:
    - `members`: a row is readable/writable by the member it belongs to (`auth_user_id = auth.uid()`) or by any row in `admins` matching the current user.
    - `payments`, `payment_allocations`: same pattern — member sees only their own; admins see all.
    - `admins`, `dues_config`, `contribution_periods`: admin-only read/write; members can read `contribution_periods`/`dues_config` (they need to know the amount) but not write.
-4. Configure Supabase Auth: enable magic-link (and/or phone OTP if SMS is viable in Nigeria — magic link via email is the simpler MVP default) sign-in.
-5. Seed data: insert the developer and treasurer as rows in `admins`, linked to their `auth_user_id` after first login. Insert an initial `dues_config` row and generate `contribution_periods` for the current month forward (a small script or SQL that can be re-run monthly, or a scheduled Supabase Edge Function later — manual for MVP is fine).
-6. Build the Login screen (email input → magic link) and a minimal authenticated shell (top bar with the app name, sign-out).
-7. Build role-based routing: after login, redirect admins to `/admin`, members to `/dashboard`. A user with no `members` or `admins` row (not yet invited) sees a clear "not registered" state rather than a broken page.
+   - No delete policy on any table — RLS defaults to deny, giving soft-edit-history-not-hard-deletes (research §6) for free.
+4. [x] Configure Supabase Auth: magic-link email sign-in was already enabled by default; updated `site_url`/redirect allow-list to include the production domain (only had `localhost` before).
+5. [x] Seed data: developer (`ita.godwin@gmail.com`) and treasurer (`chimaebano@yahoo.co.uk`) seeded as `admins` rows, auto-linked to `auth_user_id` on first login via a `handle_new_user()` trigger on `auth.users` (matches by email — see deviation note below). `dues_config` seeded at ₦5,000/month; 12 `contribution_periods` generated (Jul 2026 – Jun 2027).
+6. [x] Build the Login screen (email input → magic link) and a minimal authenticated shell (top bar with the app name, sign-out).
+7. [x] Build role-based routing: after login, admins → `/admin`, members → `/dashboard`. A user with no `members`/`admins` row lands on `/not-registered`.
 
-**Demo check:** developer and treasurer can both log in and land on an (empty) admin view; RLS is verified by confirming a member's Supabase session genuinely cannot read another member's `payments` row (test this directly, not just through the UI).
+**Deviations from plan §2** (both necessary for the M1 step 5 invite-then-link flow to work at all — the plan's schema had no way to match a first-time login back to a pre-seeded row): `admins` gained an `email` column; `members.email` and `admins.email` both got case-insensitive unique indexes.
+
+**Demo check:** ✅ Both admins seeded; the magic-link verification code path (`/auth/v1/verify` → session) was exercised end-to-end programmatically and confirmed working. RLS was verified directly, not just through the UI — two throwaway test members with real auth sessions were created via the service-role key, and it was confirmed via raw PostgREST calls that member A's session returns *only* member A's `payments` row (list query and a direct id lookup of member B's row both correctly return nothing), and that a member session cannot read the `admins` table at all. Test data was deleted afterward — production seed data (2 admins, 0 members) confirmed clean. Still to do: the developer/treasurer should each click a real magic-link email through the deployed app once, to confirm the actual UI click-through (not just the API) end to end.
 
 ---
 
