@@ -35,12 +35,14 @@ This breaks down as membership grows because:
 
 ## 3. Users & Roles
 
-| Role | Description | Key needs |
-|---|---|---|
-| **Member** | Regular association member paying monthly dues | See own status/history, submit a receipt, get reminders |
-| **Treasurer/Admin** | Verifies receipts, manages member records | Dashboard of who's paid/owed, verify/reject submissions, adjust records for edge cases (e.g. cash payments, corrections) |
-| **Exco/Super Admin** (optional, may = Admin initially) | Oversight role | Reports/exports, manage admins, configure dues amount & cycle |
-| **Bar Attendant** (Phase 2, see §5) | Staff at the mess bar | Restricted, write-only-ish access to log a drink served against a member's name — should *not* see dues/payment data; a distinct permission scope from Admin, not a rename of it |
+
+| Role                                                   | Description                                    | Key needs                                                                                                                                                                        |
+| ------------------------------------------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Member**                                             | Regular association member paying monthly dues | See own status/history, submit a receipt, get reminders                                                                                                                          |
+| **Treasurer/Admin**                                    | Verifies receipts, manages member records      | Dashboard of who's paid/owed, verify/reject submissions, adjust records for edge cases (e.g. cash payments, corrections)                                                         |
+| **Exco/Super Admin** (optional, may = Admin initially) | Oversight role                                 | Reports/exports, manage admins, configure dues amount & cycle                                                                                                                    |
+| **Bar Attendant** (Phase 2, see §5)                    | Staff at the mess bar                          | Restricted, write-only-ish access to log a drink served against a member's name — should *not* see dues/payment data; a distinct permission scope from Admin, not a rename of it |
+
 
 For an MVP, Admin and Super Admin can be the same role; splitting them is a cheap Phase 2 addition once the permission model exists.
 
@@ -59,6 +61,7 @@ This allocation model is the one piece of domain design worth getting right befo
 ## 5. Feature Set
 
 ### MVP (Phase 1)
+
 1. **Auth & onboarding** — admin invites members (phone/email + link), simple login (magic link or OTP — low-friction, no password to forget).
 2. **Member dashboard** — this month's status, running arrears (if any), payment history list, a "Submit Payment" action.
 3. **Submit payment (member)** — amount, date, optional receipt image upload, optional note ("covers May–July").
@@ -68,13 +71,13 @@ This allocation model is the one piece of domain design worth getting right befo
 7. **Notifications** — due-date reminder, payment-verified confirmation, overdue nudge. (Channel decision in §7.)
 
 ### Phase 2 (post-MVP, sequence TBD with user)
+
 - Reports/export (CSV/PDF) for exco meetings or audits.
 - Bulk actions (mark multiple members' cash payments at once).
 - Configurable dues amount per period / per member (e.g. new-member pro-ration).
 - WhatsApp-native reminders (see §7) instead of/alongside push.
 - Multiple admins with an audit log of who verified what.
 - Online payment gateway integration (Paystack/Flutterwave) as an *alternative* to manual receipt upload, not a replacement.
-- **Bar consumption tracking.** The mess bar is a distinct social hub from dues collection: members sit, relax, and buy drinks/liquor. Idea is to let a bar attendant log what a member is served (brand, quantity) at time of service, so that over time each member can see their own consumption history, and the association can surface it as lighthearted trivia/leaderboards ("who's drinking the most"). This is a genuinely separate domain from Payment/Allocation (§4) — a new Member-linked "drink served" record, not a dues-payment variant — and needs its own restricted write role (Bar Attendant, added to §3) rather than reusing the Admin role. Fun/social feature, not financial record-keeping, so it doesn't inherit the same auditability/RLS strictness as payments — worth a lighter design pass when it's picked up.
 
 ## 6. Non-Functional Requirements
 
@@ -98,6 +101,7 @@ Members already live in WhatsApp — that's *why* the current process exists. Tw
 ## 8. Prior Art (brief scan)
 
 This problem — tracking recurring contributions in an informal/semi-formal group — is the same shape as:
+
 - **Ajo/Esusu/Chama contribution trackers** common across West/East Africa (informal savings groups) — most are spreadsheet-based or use generic "thrift" apps; few handle the multi-month-advance-payment case well, which is a real differentiator here.
 - **Church tithe/offering tracking software** — similar member+period+verification model, usually over-built for this use case (choir/event management bolted on).
 - **SACCO/cooperative society software** — closer in spirit but built for regulated financial institutions, heavier than needed.
@@ -109,37 +113,45 @@ No dominant lightweight tool targets "small association, WhatsApp-native, receip
 Context used for this recommendation: no strong existing language preference (defer to best fit), PWA distribution (not native app stores) is preferred, payment collection stays manual receipt-based for MVP, members are primarily in Nigeria.
 
 ### Frontend: **Next.js (App Router) as a PWA**
+
 - Single codebase, mobile-first responsive by default, installable via manifest + service worker (`next-pwa` or hand-rolled).
 - No app store review cycle — ship and update instantly, which matters for an association that will want to iterate ("can we also see who paid in cash?") without a store approval delay.
 - Huge ecosystem/documentation depth, which matters when most of the implementation will be done *with* Claude Code rather than by a specialist — it's the stack Claude Code will have the most reliable, well-trodden patterns for.
 - Pairs naturally with **Tailwind CSS + shadcn/ui** for the "modern but classic" aesthetic — shadcn's components are clean, restrained, and easy to theme rather than looking templated.
 
 ### Backend & Database: **Supabase**
+
 - Managed Postgres (relational — the right fit for the Member / Period / Payment / Allocation model in §4, which is inherently relational, not document-shaped).
 - Built-in Auth (magic link / OTP — no password friction for non-technical members), Row-Level Security (enforces §6's "member sees only their own data" at the database layer, not just in app code — meaningfully safer for financial data), and Storage (for receipt images).
 - Removes the need to stand up and operate a separate backend service for an MVP of this size.
 
 ### Notifications
+
 - **Web Push**: native browser API + a small service worker, no separate vendor needed for MVP.
 - **Phase 2**: WhatsApp Cloud API for reminders (see §7), Resend or similar for transactional email as a fallback channel.
 
 ### Hosting
+
 - **Vercel** for the Next.js app (first-class Next.js support, generous free tier, trivial deploys) + Supabase's own managed hosting for DB/Auth/Storage.
 
 ### Why not the alternatives
+
 - **Flutter / React Native (native app)** — better native feel and store presence, but slower to ship, requires app store accounts/review, and store distribution wasn't the stated preference. Worth revisiting only if the association later wants store presence for legitimacy/trust reasons.
 - **Firebase instead of Supabase** — Firestore's document model is a worse fit for the relational Payment/Allocation/Period structure in §4, which needs joins and aggregate queries (e.g. "sum allocations per member per period") that are awkward in Firestore and natural in Postgres.
 - **Bare React SPA** — loses Next.js's built-in routing/SSR/PWA tooling for no real benefit here.
 
 ### Summary
-| Layer | Choice |
-|---|---|
-| Frontend | Next.js (App Router), Tailwind CSS, shadcn/ui |
-| Backend/DB | Supabase (Postgres, Auth, Storage, Row-Level Security) |
-| Notifications (MVP) | Web Push |
-| Notifications (Phase 2) | WhatsApp Cloud API, email fallback |
-| Hosting | Vercel + Supabase |
-| Payments (Phase 2, optional) | Paystack / Flutterwave |
+
+
+| Layer                        | Choice                                                 |
+| ---------------------------- | ------------------------------------------------------ |
+| Frontend                     | Next.js (App Router), Tailwind CSS, shadcn/ui          |
+| Backend/DB                   | Supabase (Postgres, Auth, Storage, Row-Level Security) |
+| Notifications (MVP)          | Web Push                                               |
+| Notifications (Phase 2)      | WhatsApp Cloud API, email fallback                     |
+| Hosting                      | Vercel + Supabase                                      |
+| Payments (Phase 2, optional) | Paystack / Flutterwave                                 |
+
 
 ## 10. Open Questions — Resolved
 
@@ -161,3 +173,4 @@ Context used for this recommendation: no strong existing language preference (de
 2. Answer the open questions in §10.
 3. Produce `02-plan.md` — architecture, data schema, screen list, milestone breakdown.
 4. Produce `03-implementation.md` — task-level build plan Claude Code will execute against.
+
