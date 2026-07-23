@@ -55,17 +55,17 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 ---
 
-## M2 — Member Submit Flow
+## M2 — Member Submit Flow ✅ Complete (2026-07-23)
 
 **Goal:** a member can submit proof of payment.
 
-1. Member Dashboard shell (plan §3.2): current-month status badge (query `member_period_status` for the logged-in member + current period), arrears summary, "Submit a payment" button, last-3-payments preview.
-2. Submit Payment screen: amount, date picker (default today), receipt image input (`<input type="file" accept="image/*" capture>` for camera access on mobile), optional note textarea.
-3. Client-side image compression before upload (e.g. `browser-image-compression`) — keep uploads small given §6 low-bandwidth requirement.
-4. Upload flow: image → Supabase Storage (private bucket, path scoped by member id), then insert a `payments` row with `source = 'member_submitted'`, `status = 'pending'`, `receipt_url` = storage path.
-5. Payment History screen: list the member's `payments` joined with their `payment_allocations`/periods, status badge per entry, rejection reason shown if rejected.
+1. [x] Member Dashboard shell (plan §3.2): current-month status badge (query `member_period_status` for the logged-in member + current period), arrears summary, "Submit a payment" button, last-3-payments preview.
+2. [x] Submit Payment screen: amount, date picker (default today), receipt image input (`<input type="file" accept="image/*" capture>` for camera access on mobile), optional note textarea. Receipt is optional per research §5 (the admin verify flow in M3, not the upload itself, is the actual trust gate).
+3. [x] Client-side image compression before upload (`browser-image-compression`, target ~0.5MB / 1600px) — keeps uploads small given §6 low-bandwidth requirement.
+4. [x] Upload flow: image → Supabase Storage (private `receipts` bucket, path scoped by member id folder), then insert a `payments` row with `source = 'member_submitted'`, `status = 'pending'`, `receipt_url` = storage path.
+5. [x] Payment History screen: list the member's `payments` joined with their `payment_allocations`/periods, status badge per entry, rejection reason shown if rejected, signed URL to view the receipt.
 
-**Demo check:** a test member account can submit a payment with a photo and see it appear as "Pending" in their history.
+**Demo check:** ✅ Verified directly against the real backend (not just the UI): a throwaway test member uploaded a receipt to their own storage folder (succeeded), was denied uploading into another member's folder and denied reading another member's receipt (both 403), submitted a payment that landed as `source=member_submitted`/`status=pending`, and was denied when attempting to insert a payment claiming `source=admin_manual` (RLS blocks members from spoofing provenance). Test data deleted afterward — confirmed 0 members/payments/receipt objects remain in production.
 
 ---
 
