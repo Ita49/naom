@@ -69,17 +69,17 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 ---
 
-## M3 — Admin Verify Flow
+## M3 — Admin Verify Flow ✅ Complete (2026-07-23)
 
 **Goal:** admin can review and resolve submissions, including the multi-month allocation case.
 
-1. Verification Queue: list all `payments` where `status = 'pending'`, most recent first, showing member name, amount, date, and a thumbnail.
-2. Detail/verify dialog: full-size receipt image, amount, editable allocation UI — default allocation is oldest-unpaid-first (auto-compute which periods this member owes and greedily fill from the payment amount), admin can adjust before confirming.
-3. Approve action: transactionally (a Postgres function or a single RPC call, not multiple round-trips prone to partial failure) — insert `payment_allocations` rows per the chosen breakdown, set `payments.status = 'verified'`, `verified_by`, `verified_at`.
-4. Reject action: require a reason, set `status = 'rejected'`, `rejection_reason`; no allocations created.
-5. Wire the (not-yet-built) notification trigger point here as a stub/TODO — real send happens in M6, but the call site belongs in this transaction.
+1. [x] Verification Queue: list all `payments` where `status = 'pending'`, most recent first, showing member name, amount, date, and a thumbnail.
+2. [x] Detail/verify dialog: full-size receipt image, amount, editable allocation UI — default allocation is oldest-unpaid-first (`computeDefaultAllocation()` in `src/lib/allocation.ts`, unit tested since the cross-cutting notes below flag it as the highest-risk logic), admin can adjust before confirming.
+3. [x] Approve action: a single Postgres function (`approve_payment`), not multiple round-trips — inserts `payment_allocations` rows per the chosen breakdown and sets `payments.status = 'verified'`, `verified_by`, `verified_at` atomically.
+4. [x] Reject action (`reject_payment`): requires a reason, sets `status = 'rejected'`, `rejection_reason`; no allocations created.
+5. [x] Notification trigger points left as `TODO(M6)` comments at the exact call sites inside both functions.
 
-**Demo check:** a pending submission can be approved with a correct, admin-confirmed period allocation, and rejected with a reason; both outcomes are visible in the member's history from M2.
+**Demo check:** ✅ Verified directly against the real backend: approved an ₦8,000 payment, split 5,000/3,000 across two periods, confirmed the exact allocation rows landed and `payments.status/verified_by/verified_at` were set correctly; rejected a payment with a reason and confirmed it stored correctly; confirmed the function itself refuses an empty rejection reason; and confirmed a non-admin member cannot approve even their own payment (blocked by RLS before the function's own admin check even runs — `SELECT ... FOR UPDATE` requires the UPDATE policy to pass, not just SELECT). Test data deleted afterward.
 
 ---
 
