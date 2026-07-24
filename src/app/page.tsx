@@ -10,7 +10,7 @@ export default async function Home() {
     case "member":
       redirect("/dashboard");
     case "unregistered":
-      redirect("/not-registered");
+      redirect("/onboarding");
     default:
       redirect("/login");
   }
