@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { computeDefaultAllocation, type UnpaidPeriod } from "@/lib/allocation";
+import { formatPeriod } from "@/lib/period";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,14 +29,6 @@ type QueuedPayment = {
 };
 
 type AllocationRow = UnpaidPeriod & { amount: number };
-
-function formatPeriod(periodMonth: string) {
-  return new Date(`${periodMonth}T00:00:00Z`).toLocaleDateString("en-US", {
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
 
 export function VerificationQueue({
   payments,

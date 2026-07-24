@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { getSessionRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { currentPeriodMonth } from "@/lib/period";
+import {
+  PERIOD_STATUS_LABEL,
+  PERIOD_STATUS_CLASS,
+  PAYMENT_STATUS_LABEL,
+  PAYMENT_STATUS_CLASS,
+} from "@/lib/status-labels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,37 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-const PERIOD_STATUS_LABEL: Record<string, string> = {
-  paid: "Paid",
-  partial: "Partial",
-  unpaid: "Unpaid",
-  overpaid: "Overpaid",
-};
-
-const PERIOD_STATUS_CLASS: Record<string, string> = {
-  paid: "bg-status-paid text-status-paid-foreground",
-  overpaid: "bg-status-paid text-status-paid-foreground",
-  partial: "bg-status-partial text-status-partial-foreground",
-  unpaid: "bg-status-overdue text-status-overdue-foreground",
-};
-
-const PAYMENT_STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  verified: "Verified",
-  rejected: "Rejected",
-};
-
-const PAYMENT_STATUS_CLASS: Record<string, string> = {
-  pending: "bg-secondary text-secondary-foreground",
-  verified: "bg-status-paid text-status-paid-foreground",
-  rejected: "bg-status-overdue text-status-overdue-foreground",
-};
-
-function currentPeriodMonth() {
-  const today = new Date();
-  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`;
-}
 
 export default async function MemberDashboard() {
   const session = await getSessionRole();

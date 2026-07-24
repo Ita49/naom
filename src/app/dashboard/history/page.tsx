@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import { getSessionRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { formatPeriod } from "@/lib/period";
+import {
+  PAYMENT_STATUS_LABEL,
+  PAYMENT_STATUS_CLASS,
+} from "@/lib/status-labels";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -8,26 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-const PAYMENT_STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  verified: "Verified",
-  rejected: "Rejected",
-};
-
-const PAYMENT_STATUS_CLASS: Record<string, string> = {
-  pending: "bg-secondary text-secondary-foreground",
-  verified: "bg-status-paid text-status-paid-foreground",
-  rejected: "bg-status-overdue text-status-overdue-foreground",
-};
-
-function formatPeriod(periodMonth: string) {
-  return new Date(`${periodMonth}T00:00:00Z`).toLocaleDateString("en-US", {
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
 
 export default async function PaymentHistoryPage() {
   const session = await getSessionRole();
