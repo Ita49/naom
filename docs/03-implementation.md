@@ -51,6 +51,8 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 **Deviations from plan §2** (both necessary for the M1 step 5 invite-then-link flow to work at all — the plan's schema had no way to match a first-time login back to a pre-seeded row): `admins` gained an `email` column; `members.email` and `admins.email` both got case-insensitive unique indexes.
 
+**2026-07-24 update — invite-then-link replaced with self-signup:** post-M6, the product decision changed: rather than an admin pre-seeding every member's row before they can log in (invite-only), anyone with the app link can now sign up themselves — see the "Self-service member signup" entry after M6 below. `/not-registered` (step 7 above) no longer exists; it's now `/onboarding`, a short name-entry form. Admins are unaffected — still invite-only, still just the two seeded here.
+
 **Demo check:** ✅ Both admins seeded; the magic-link verification code path (`/auth/v1/verify` → session) was exercised end-to-end programmatically and confirmed working. RLS was verified directly, not just through the UI — two throwaway test members with real auth sessions were created via the service-role key, and it was confirmed via raw PostgREST calls that member A's session returns *only* member A's `payments` row (list query and a direct id lookup of member B's row both correctly return nothing), and that a member session cannot read the `admins` table at all. Test data was deleted afterward — production seed data (2 admins, 0 members) confirmed clean. Still to do: the developer/treasurer should each click a real magic-link email through the deployed app once, to confirm the actual UI click-through (not just the API) end to end.
 
 ---
@@ -123,6 +125,20 @@ Both cron routes are stateless/idempotent by design (recipients always derived f
 **Demo check:** ✅ Verified directly against the real backend (not a real phone — see caveat below): seeded two throwaway members, one left unpaid and one backfilled to paid for the current period. `due-reminder` sent to the unpaid member only (`{"sent":1}`), a second run correctly deduped to `{"sent":0}`, and the notifications row had the right `type`/`payload`. Added a temporary contribution period to exercise `overdue-nudge` the same way (previous-period unpaid vs. paid) with identical results, then removed it — production's 12 real periods (Jul 2026–Jun 2027) confirmed unchanged. Confirmed `push_subscriptions` RLS: a member can insert/select their own subscription, is denied inserting one for another member, and an admin session can read it (needed for the payment-status dispatch path). Confirmed `/api/cron/*` reject requests with no/wrong `CRON_SECRET` (401). Approved and rejected real test payments end-to-end and confirmed `payment_verified`/`payment_rejected` notifications rows land with the right payload, including a live `sendNotification()` call against a registered (fake-token) subscription completing without crashing the route. Test data deleted afterward — production confirmed back to 0 members/payments/subscriptions/notifications.
 VAPID keys and `CRON_SECRET` are mirrored into Vercel's Production/Preview/Development env vars (confirmed via `vercel env ls`), alongside `.env.local` for local dev.
 **Still to do:** actual push delivery to a real phone with the PWA installed — that requires a genuine browser-issued push subscription and a physical device, which isn't available in this environment.
+
+---
+
+## Self-service member signup ✅ Complete (2026-07-24, post-M6, ahead of M7)
+
+**Goal:** replace the invite-then-link model (M1) — an admin no longer has to pre-seed a member's row before they can log in. With only two people (developer + treasurer) available to test, and ~100 real members to eventually onboard, a manual per-member add step didn't scale; anyone with the app link should be able to sign up themselves. Admins are unaffected — still invite-only, still just the two seeded in M1.
+
+1. [x] RLS: `members` insert policy changed from admin-only to `auth_user_id = auth.uid() or is_admin()` — a signed-in user can insert a row claiming only their own identity, never someone else's.
+2. [x] `/not-registered` (the old "ask the treasurer to add you" dead end) replaced with `/onboarding`: a first-time login with no matching member/admin row lands here, enters their full name (+ optional phone), and submitting creates their member row and lands them on `/dashboard`.
+3. [x] Updated the three redirect call sites (root page, admin layout, dashboard layout) that pointed at `/not-registered` to point at `/onboarding` instead.
+
+**Demo check:** ✅ Verified directly against the real backend with a brand-new email that had never touched the system before: magic-link login correctly landed on `/onboarding` (not a dead end), submitting the form inserted the member row and immediately produced a working dashboard, and a spoofed insert attempt claiming a fabricated `auth_user_id` was correctly rejected by RLS (`42501`). Test account (auth user + member row) deleted afterward.
+
+**Note:** anyone who gets the app link can now become a recognized member — there's no moderation/approval gate. That's an accepted tradeoff while only the developer and treasurer are testing; worth a conscious decision before the link is shared any more widely than intended.
 
 ---
 
