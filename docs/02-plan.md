@@ -122,21 +122,21 @@ notifications (
 8. **Member Detail (admin view)** — full payment/allocation history, manual actions: record a payment on the member's behalf, backfill historical arrears, edit member info, deactivate.
 9. **Settings** — dues amount (with effective date), admin list.
 
-## 4. Design System (placeholder, pending logo)
+## 4. Design System ✅ Real palette (2026-07-24, M7)
 
-Direction from resolved Q5: Nigerian Army Mess colors — dignified, disciplined, "modern but classic."
+The logo arrived: the Nigerian Army Ordnance Corps crest (green field, navy/red/gold service ribbon, gold "Service & Loyalty" banner, black eagle-and-star line art). Colors below were sampled directly from it — no maroon appears anywhere on the actual crest, so the M0 placeholder guess (maroon primary) has been replaced: primary moved to the ribbon's navy, and "supporting" took over the dark-army-green role using the crest's actual field green instead of a guessed shade.
 
-| Token | Placeholder value | Use |
+| Token | Real value | Use |
 |---|---|---|
-| Primary | Deep maroon/burgundy (`#5C0A1E`-ish) | Primary actions, headers, active states |
-| Accent | Brass/gold (`#B8860B`-ish) | Highlights, badges (e.g. "Paid"), focus rings |
-| Supporting | Dark army green (`#2F3B26`-ish) | Secondary elements, alternate status color |
-| Neutrals | Off-white/cream background, near-black text | Base UI, high legibility |
-| Status colors | Green = paid, amber = partial, maroon/red = unpaid/overdue | Keep semantic status colors distinct from the brand maroon to avoid ambiguity — likely a separate red for "overdue" vs. the brand maroon |
+| Primary | Ribbon navy (`#3C4E69`) | Primary actions, headers, active states |
+| Accent | Ribbon/banner gold (`#CCBA69`) | Highlights, badges (e.g. "Paid"), focus rings |
+| Supporting | Crest field green (`#3A7853`) | Secondary elements, alternate status color |
+| Neutrals | Off-white/cream background, near-black text | Base UI, high legibility (unchanged — not derived from the crest, still reads well) |
+| Status colors | Green = paid, amber = partial, red = unpaid/overdue | Unchanged universal convention — kept distinct from both primary (navy) and supporting (green) to avoid the exact ambiguity this section originally warned about |
 
 Typography: a clean, highly legible sans-serif for UI/numbers (tabular figures for amounts), with restraint elsewhere — avoid decorative/serif flourishes that would undercut mobile legibility. Component library: shadcn/ui, themed to the above tokens rather than default Tailwind slate/blue.
 
-**Action item:** swap placeholder hex values for exact ones once the logo is shared; treat this table as the single place that changes.
+All values live in `src/app/globals.css` (`:root` and `.dark`) — still a one-file change if the exact shades ever need refining. App icons (`public/icons/*`, `src/app/favicon.ico`) were regenerated from the actual crest image, replacing the placeholder "N" mark from M0.
 
 ## 5. Notifications
 

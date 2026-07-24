@@ -57,24 +57,30 @@
 }
 
 :root {
-  /* Placeholder brand palette — see docs/02-plan.md §4. Swap these hex
-     values for the real logo-derived palette; every component references
-     the named tokens below, never raw hex, so that swap is one-file. */
+  /* Real brand palette, sampled directly from the association's crest
+     (Nigerian Army Ordnance Corps insignia — green field, navy/red/gold
+     service ribbon, gold "Service & Loyalty" banner). Replaces the M0
+     placeholder guess (maroon/gold/dark-green) now that the actual logo
+     has arrived — the crest has no maroon at all, so primary moved to
+     the ribbon's navy and supporting took the placeholder's old "dark
+     army green" role using the crest's actual field green. Every
+     component references the named tokens below, never raw hex, so any
+     future refinement stays a one-file change. */
   --background: #f5f0e6;
   --foreground: #1a1512;
   --card: #fbf8f2;
   --card-foreground: #1a1512;
   --popover: #fbf8f2;
   --popover-foreground: #1a1512;
-  --primary: #5c0a1e;
+  --primary: #3c4e69;
   --primary-foreground: #f5f0e6;
   --secondary: #ede6d8;
   --secondary-foreground: #1a1512;
   --muted: #ede6d8;
   --muted-foreground: #6b5f52;
-  --accent: #b8860b;
+  --accent: #ccba69;
   --accent-foreground: #1a1512;
-  --supporting: #2f3b26;
+  --supporting: #3a7853;
   --supporting-foreground: #f5f0e6;
   --status-paid: #2e7d32;
   --status-paid-foreground: #f5f0e6;
@@ -85,7 +91,7 @@
   --destructive: #b3261e;
   --border: #e0d8c8;
   --input: #e0d8c8;
-  --ring: #b8860b;
+  --ring: #ccba69;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -94,12 +100,12 @@
   --radius: 0.625rem;
   --sidebar: #fbf8f2;
   --sidebar-foreground: #1a1512;
-  --sidebar-primary: #5c0a1e;
+  --sidebar-primary: #3c4e69;
   --sidebar-primary-foreground: #f5f0e6;
   --sidebar-accent: #ede6d8;
   --sidebar-accent-foreground: #1a1512;
   --sidebar-border: #e0d8c8;
-  --sidebar-ring: #b8860b;
+  --sidebar-ring: #ccba69;
 }
 
 .dark {
@@ -109,16 +115,16 @@
   --card-foreground: #f5f0e6;
   --popover: #241d18;
   --popover-foreground: #f5f0e6;
-  --primary: #8c1230;
+  --primary: #536c92;
   --primary-foreground: #f5f0e6;
   --secondary: #2e2620;
   --secondary-foreground: #f5f0e6;
   --muted: #2e2620;
   --muted-foreground: #b8ac9c;
-  --accent: #d4a017;
+  --accent: #e0c878;
   --accent-foreground: #1a1512;
-  --supporting: #4a5a3a;
-  --supporting-foreground: #f5f0e6;
+  --supporting: #4ea270;
+  --supporting-foreground: #1a1512;
   --status-paid: #4caf50;
   --status-paid-foreground: #1a1512;
   --status-partial: #e0a030;
@@ -128,7 +134,7 @@
   --destructive: #e5534b;
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #d4a017;
+  --ring: #e0c878;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -136,12 +142,12 @@
   --chart-5: oklch(0.269 0 0);
   --sidebar: #241d18;
   --sidebar-foreground: #f5f0e6;
-  --sidebar-primary: #8c1230;
+  --sidebar-primary: #536c92;
   --sidebar-primary-foreground: #f5f0e6;
   --sidebar-accent: #2e2620;
   --sidebar-accent-foreground: #f5f0e6;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: #d4a017;
+  --sidebar-ring: #e0c878;
 }
 
 @layer base {
