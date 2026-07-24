@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSessionRole } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
+import { NotificationPrompt } from "@/components/notification-prompt";
 
 export default async function DashboardLayout({
   children,
@@ -13,5 +14,10 @@ export default async function DashboardLayout({
   if (session.role === "unregistered") redirect("/not-registered");
   if (session.role === "admin") redirect("/admin");
 
-  return <AppShell name={session.fullName}>{children}</AppShell>;
+  return (
+    <AppShell name={session.fullName}>
+      <NotificationPrompt memberId={session.memberId} />
+      {children}
+    </AppShell>
+  );
 }

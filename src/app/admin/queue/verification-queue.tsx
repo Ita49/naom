@@ -30,6 +30,20 @@ type QueuedPayment = {
 
 type AllocationRow = UnpaidPeriod & { amount: number };
 
+// Best-effort: the approve/reject action has already succeeded and been
+// shown to the admin by the time this fires, so a push-delivery failure
+// here shouldn't surface as if the approval/rejection itself failed.
+function notifyPaymentStatus(
+  paymentId: string,
+  type: "payment_verified" | "payment_rejected"
+) {
+  fetch("/api/notifications/payment-status", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ paymentId, type }),
+  }).catch(() => {});
+}
+
 export function VerificationQueue({
   payments,
 }: {
@@ -119,6 +133,7 @@ export function VerificationQueue({
     toast.success("Payment approved.");
     setSelected(null);
     router.refresh();
+    notifyPaymentStatus(selected.id, "payment_verified");
   }
 
   async function handleReject() {
@@ -144,6 +159,7 @@ export function VerificationQueue({
     toast.success("Payment rejected.");
     setSelected(null);
     router.refresh();
+    notifyPaymentStatus(selected.id, "payment_rejected");
   }
 
   if (payments.length === 0) {

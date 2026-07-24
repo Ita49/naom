@@ -108,17 +108,20 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 ---
 
-## M6 — Notifications
+## M6 — Notifications ✅ Complete (2026-07-24)
 
 **Goal:** the three MVP web-push notifications fire correctly.
 
-1. Notification permission prompt: shown once, right after a member's first successful login, with a one-line explanation before the browser's native permission dialog (asking cold with no context tends to get denied).
-2. Service worker push handler + a `notifications` table write on every send (audit trail, and prevents duplicate sends).
-3. **Payment verified / rejected**: trigger from the M3 approve/reject action (the stub point left there) — immediate push to the member.
-4. **Due-date reminder**: a scheduled job (Supabase Edge Function on a cron schedule, or a Vercel Cron hitting an API route) that runs a few days before month-end, queries members without a `paid` status for the current period, and pushes a reminder to each — skip anyone already notified this period (check `notifications` log).
-5. **Overdue nudge**: similar scheduled job, run early in a new month for anyone still unpaid for the *previous* period.
+1. [x] Notification permission prompt (`src/components/notification-prompt.tsx`): shown once per device on the member dashboard, right after login, with a one-line explanation before the native permission dialog. Dismissal/enrollment is remembered via `localStorage` (device-scoped is actually correct here — push subscriptions are per-device too).
+2. [x] Service worker push handler (`public/sw.js`: `push` + `notificationclick`) + `src/lib/push.ts`'s `sendPushToMember()` writes a `notifications` row on every send attempt, regardless of delivery outcome — audit trail and the dedup check the reminder jobs rely on. New `push_subscriptions` table (RLS: member owns their rows, admin can read for the dispatch path below).
+3. [x] **Payment verified / rejected**: `verification-queue.tsx` posts to `/api/notifications/payment-status` right after `approve_payment`/`reject_payment` succeeds (fire-and-forget — a push failure doesn't undo the approval/rejection the admin already saw confirmed). Replaced the M3-era TODO(M6) comments inside those two SQL functions to point here instead of going stale.
+4. [x] **Due-date reminder**: Vercel Cron (`vercel.ts`, day 25 of each month) hits `/api/cron/due-reminder`, guarded by a `CRON_SECRET` bearer check. Queries `member_period_status` for the current period's unpaid/partial active members, skips anyone already notified this period.
+5. [x] **Overdue nudge**: same shape, `/api/cron/overdue-nudge` on day 3 of each month, targeting the *previous* period via `previousPeriodMonth()`.
 
-**Demo check:** approving a test payment triggers a real push notification on a phone with the PWA installed; manually triggering the reminder job sends to an unpaid test member and not to a paid one.
+Both cron routes are stateless/idempotent by design (recipients always derived from live data + the notifications dedup log), so they're also exactly how they were demo-tested below — no date-mocking needed to trigger them on demand.
+
+**Demo check:** ✅ Verified directly against the real backend (not a real phone — see caveat below): seeded two throwaway members, one left unpaid and one backfilled to paid for the current period. `due-reminder` sent to the unpaid member only (`{"sent":1}`), a second run correctly deduped to `{"sent":0}`, and the notifications row had the right `type`/`payload`. Added a temporary contribution period to exercise `overdue-nudge` the same way (previous-period unpaid vs. paid) with identical results, then removed it — production's 12 real periods (Jul 2026–Jun 2027) confirmed unchanged. Confirmed `push_subscriptions` RLS: a member can insert/select their own subscription, is denied inserting one for another member, and an admin session can read it (needed for the payment-status dispatch path). Confirmed `/api/cron/*` reject requests with no/wrong `CRON_SECRET` (401). Approved and rejected real test payments end-to-end and confirmed `payment_verified`/`payment_rejected` notifications rows land with the right payload, including a live `sendNotification()` call against a registered (fake-token) subscription completing without crashing the route. Test data deleted afterward — production confirmed back to 0 members/payments/subscriptions/notifications.
+**Still to do:** actual push delivery to a real phone with the PWA installed — that requires a genuine browser-issued push subscription and a physical device, which isn't available in this environment. VAPID keys and `CRON_SECRET` are in `.env.local` (gitignored, local dev only) but still need to be mirrored into Vercel's Production/Preview/Development env vars — the Vercel CLI wasn't authenticated in this environment, so unlike M0 this mirroring step didn't happen automatically and is still outstanding.
 
 ---
 
