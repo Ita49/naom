@@ -83,28 +83,28 @@ This document turns `02-plan.md`'s milestones into concrete, ordered build tasks
 
 ---
 
-## M4 — Dashboards & Roster
+## M4 — Dashboards & Roster ✅ Complete (2026-07-24)
 
 **Goal:** the "at a glance" views that are the actual point of this app.
 
-1. Admin Dashboard: this month's collection % and ₦ total (query across all members' current-period allocations vs. `dues_amount × active member count`), count of members in arrears, pending-queue count (links to M3's queue), recent activity feed (latest verified/rejected payments).
-2. Member Roster: table of all members — name, current-month status badge, total ₦ in arrears — searchable by name, filterable by status. Use the `member_period_status` view joined across periods to compute "total arrears."
-3. Member Detail (admin view): full payment/allocation history for one member, plus manual actions entry points (record-on-behalf, backfill — wired to M5, deactivate member).
-4. Sanity-check the Member Dashboard (built in M2) against real multi-admin, multi-member data now that there's more than one test member — this is where allocation edge cases (payment spanning periods with different `dues_amount`, if the config ever changed) tend to surface.
+1. [x] Admin Dashboard: this month's collection % and ₦ total (query across all members' current-period allocations vs. `dues_amount × active member count`), count of members in arrears, pending-queue count (links to M3's queue), recent activity feed (latest verified/rejected payments).
+2. [x] Member Roster: table of all members — name, current-month status badge, total ₦ in arrears — searchable by name, filterable by status. Use the `member_period_status` view joined across periods to compute "total arrears."
+3. [x] Member Detail (admin view): full payment/allocation history for one member, plus manual actions entry points (record-on-behalf, backfill — wired to M5, deactivate member).
+4. [x] Sanity-checked the Member Dashboard (built in M2) against real backend data now that there's admin tooling to inspect it — confirmed via a throwaway test member.
 
-**Demo check:** with ~5–10 seeded test members in varied states (paid, partial, unpaid, in arrears), both dashboards and the roster present an accurate, correctly-computed picture.
+**Demo check:** ✅ Verified against the real backend: a throwaway test member showed up correctly in both the roster (search/status-filter) and its own detail page (period-by-period status table, empty payment history), and disappeared cleanly on cleanup. `src/lib/period.ts`/`src/lib/status-labels.ts` were extracted so the admin views share the exact same status/period computations as the member dashboard, eliminating drift risk between the two. Full 5–10-member varied-state walkthrough deferred to the M7 developer/treasurer walkthrough rather than repeated here with more throwaway data.
 
 ---
 
-## M5 — Backfill Tool
+## M5 — Backfill Tool ✅ Complete (2026-07-24)
 
 **Goal:** historical arrears/payments can be entered without going through the receipt-verify flow.
 
-1. Backfill entry screen (from Member Detail): admin enters an amount and either lets the system auto-allocate oldest-unpaid-first or manually picks periods, same allocation mechanic as M3's approve action — reuse that component/logic rather than re-implementing it.
-2. On save: insert a `payments` row with `source = 'admin_backfill'`, `status = 'verified'` directly, `receipt_url = null`, plus its `payment_allocations`.
-3. Visually distinguish backfilled entries in history views (e.g. a small "Backfilled" tag) so it's always clear which records came from actual receipts vs. admin assertion.
+1. [x] Backfill entry screen (from Member Detail): admin enters an amount and either lets the system auto-allocate oldest-unpaid-first or manually picks periods, same allocation mechanic as M3's approve action — reuses `computeDefaultAllocation()` from `src/lib/allocation.ts` rather than re-implementing it.
+2. [x] On save: a new `backfill_payment()` Postgres function (mirrors M3's `approve_payment()` shape) inserts a `payments` row with `source = 'admin_backfill'`, `status = 'verified'` directly, `receipt_url = null`, plus its `payment_allocations`, atomically.
+3. [x] Backfilled entries get a small "Backfilled" badge, in both the admin Member Detail history and the member's own Payment History page.
 
-**Demo check:** admin can back-date a member's arrears for, say, the 3 months before launch, and that member's dashboard/roster status immediately reflects it correctly.
+**Demo check:** ✅ Verified directly against the real backend: created a throwaway test member (starts unpaid for the current period), called `backfill_payment` as the real admin session (magic-link-verified, not the service-role key) to back-date a ₦5,000 payment against that period, and confirmed the `payments`/`payment_allocations` rows landed exactly right (`source=admin_backfill`, `status=verified`, `verified_by`/`verified_at` set). Reloaded the roster and confirmed the member's status flipped to "Paid" and arrears to "₦0" immediately — no caching/staleness. Also confirmed the service-role key alone (no admin session) is correctly rejected by the function's own admin check. Test data deleted afterward — production confirmed back to 0 members/payments.
 
 ---
 

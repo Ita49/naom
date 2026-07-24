@@ -207,9 +207,14 @@ export default async function MemberDetailPage({
                     ₦{Number(payment.amount).toLocaleString()} ·{" "}
                     {payment.paid_at}
                   </span>
-                  <Badge className={PAYMENT_STATUS_CLASS[payment.status]}>
-                    {PAYMENT_STATUS_LABEL[payment.status] ?? payment.status}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    {payment.source === "admin_backfill" && (
+                      <Badge variant="secondary">Backfilled</Badge>
+                    )}
+                    <Badge className={PAYMENT_STATUS_CLASS[payment.status]}>
+                      {PAYMENT_STATUS_LABEL[payment.status] ?? payment.status}
+                    </Badge>
+                  </div>
                 </div>
                 <p className="text-muted-foreground text-xs">
                   {SOURCE_LABEL[payment.source] ?? payment.source}

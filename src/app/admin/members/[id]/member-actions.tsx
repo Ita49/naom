@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { BackfillDialog } from "./backfill-dialog";
 
 export function MemberActions({
   memberId,
@@ -47,23 +48,7 @@ export function MemberActions({
   return (
     <Card>
       <CardContent className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          disabled
-          title="Coming in M5"
-        >
-          Record payment
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled
-          title="Coming in M5"
-        >
-          Backfill arrears
-        </Button>
-        <span className="text-muted-foreground text-xs">Coming in M5</span>
+        <BackfillDialog memberId={memberId} />
         <div className="flex-1" />
         <Button
           variant={isActive ? "destructive" : "secondary"}

@@ -23,7 +23,7 @@ export default async function PaymentHistoryPage() {
   const { data: payments } = await supabase
     .from("payments")
     .select(
-      "id, amount, paid_at, status, note, rejection_reason, receipt_url, payment_allocations(amount, contribution_periods(period_month))"
+      "id, amount, paid_at, status, source, note, rejection_reason, receipt_url, payment_allocations(amount, contribution_periods(period_month))"
     )
     .eq("member_id", session.memberId)
     .order("submitted_at", { ascending: false });
@@ -67,9 +67,14 @@ export default async function PaymentHistoryPage() {
               <CardTitle className="text-base">
                 ₦{Number(payment.amount).toLocaleString()} · {payment.paid_at}
               </CardTitle>
-              <Badge className={PAYMENT_STATUS_CLASS[payment.status]}>
-                {PAYMENT_STATUS_LABEL[payment.status] ?? payment.status}
-              </Badge>
+              <div className="flex items-center gap-1.5">
+                {payment.source === "admin_backfill" && (
+                  <Badge variant="secondary">Backfilled</Badge>
+                )}
+                <Badge className={PAYMENT_STATUS_CLASS[payment.status]}>
+                  {PAYMENT_STATUS_LABEL[payment.status] ?? payment.status}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 text-sm">
               {periods.length > 0 && (
