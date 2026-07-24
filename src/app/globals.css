@@ -155,3 +155,73 @@
     @apply font-sans;
   }
 }
+
+/* Faded camo texture for the sign-in screen (NAOM = Nigerian Army
+   Officers' Mess). Deliberately not on the brand token system — this is
+   a one-off decorative texture, not a semantic UI color that needs to
+   move with a future palette swap. Blurred ellipses stand in for
+   classic 4-tone woodland camo blotches without needing an image asset.
+   No background-size/repeat: each gradient layer fills the element's
+   own box once, so positions (in %) scale with viewport instead of
+   visibly tiling. */
+.bg-camo {
+  background-image:
+    /* cluster: top-left */
+    radial-gradient(ellipse 240px 180px at 8% 15%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 150px 140px at 15% 9%, #8a7550 65%, transparent 66%),
+    radial-gradient(ellipse 110px 130px at 3% 23%, #211d16 65%, transparent 66%),
+    /* cluster: top, left-center */
+    radial-gradient(ellipse 200px 160px at 30% 8%, #211d16 65%, transparent 66%),
+    radial-gradient(ellipse 150px 180px at 36% 15%, #4a3728 65%, transparent 66%),
+    radial-gradient(ellipse 100px 110px at 24% 3%, #3b4a2e 65%, transparent 66%),
+    /* cluster: top-center-right */
+    radial-gradient(ellipse 220px 150px at 55% 12%, #8a7550 65%, transparent 66%),
+    radial-gradient(ellipse 140px 170px at 61% 19%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 110px 100px at 48% 5%, #4a3728 65%, transparent 66%),
+    /* cluster: top-right */
+    radial-gradient(ellipse 220px 180px at 82% 6%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 150px 130px at 89% 13%, #211d16 65%, transparent 66%),
+    radial-gradient(ellipse 100px 140px at 74% 2%, #8a7550 65%, transparent 66%),
+    /* cluster: mid-left */
+    radial-gradient(ellipse 240px 190px at 12% 44%, #4a3728 65%, transparent 66%),
+    radial-gradient(ellipse 160px 150px at 19% 37%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 110px 120px at 5% 52%, #8a7550 65%, transparent 66%),
+    /* cluster: mid-center */
+    radial-gradient(ellipse 260px 200px at 44% 40%, #211d16 65%, transparent 66%),
+    radial-gradient(ellipse 170px 160px at 51% 33%, #8a7550 65%, transparent 66%),
+    radial-gradient(ellipse 120px 140px at 36% 48%, #3b4a2e 65%, transparent 66%),
+    /* cluster: mid-right */
+    radial-gradient(ellipse 230px 180px at 72% 43%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 150px 170px at 79% 36%, #4a3728 65%, transparent 66%),
+    radial-gradient(ellipse 110px 120px at 64% 50%, #211d16 65%, transparent 66%),
+    /* cluster: mid-far-right */
+    radial-gradient(ellipse 190px 150px at 94% 39%, #8a7550 65%, transparent 66%),
+    radial-gradient(ellipse 130px 140px at 87% 46%, #211d16 65%, transparent 66%),
+    /* cluster: lower-left */
+    radial-gradient(ellipse 250px 190px at 18% 72%, #211d16 65%, transparent 66%),
+    radial-gradient(ellipse 160px 150px at 25% 65%, #4a3728 65%, transparent 66%),
+    radial-gradient(ellipse 110px 130px at 9% 79%, #3b4a2e 65%, transparent 66%),
+    /* cluster: lower-center */
+    radial-gradient(ellipse 240px 190px at 49% 70%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 160px 150px at 56% 63%, #8a7550 65%, transparent 66%),
+    radial-gradient(ellipse 110px 130px at 41% 77%, #211d16 65%, transparent 66%),
+    /* cluster: lower-right */
+    radial-gradient(ellipse 230px 180px at 78% 71%, #4a3728 65%, transparent 66%),
+    radial-gradient(ellipse 150px 160px at 85% 64%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 110px 120px at 70% 78%, #8a7550 65%, transparent 66%),
+    /* cluster: lower-far-right */
+    radial-gradient(ellipse 190px 160px at 97% 70%, #211d16 65%, transparent 66%),
+    radial-gradient(ellipse 130px 140px at 90% 77%, #3b4a2e 65%, transparent 66%),
+    /* cluster: bottom-left */
+    radial-gradient(ellipse 230px 180px at 31% 95%, #8a7550 65%, transparent 66%),
+    radial-gradient(ellipse 150px 160px at 38% 89%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 110px 120px at 23% 100%, #4a3728 65%, transparent 66%),
+    /* cluster: bottom-center-right */
+    radial-gradient(ellipse 240px 190px at 62% 96%, #3b4a2e 65%, transparent 66%),
+    radial-gradient(ellipse 160px 150px at 69% 90%, #211d16 65%, transparent 66%),
+    radial-gradient(ellipse 110px 130px at 54% 100%, #8a7550 65%, transparent 66%),
+    /* cluster: bottom-right */
+    radial-gradient(ellipse 200px 170px at 88% 94%, #4a3728 65%, transparent 66%),
+    radial-gradient(ellipse 140px 150px at 94% 88%, #3b4a2e 65%, transparent 66%);
+  filter: blur(9px);
+}

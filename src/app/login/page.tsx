@@ -10,8 +10,12 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center p-6">
-      <Card className="w-full max-w-sm">
+    <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden p-6">
+      <div
+        aria-hidden
+        className="bg-camo absolute inset-0 opacity-35 dark:opacity-45"
+      />
+      <Card className="relative w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign in to NAOM Dues</CardTitle>
         </CardHeader>
