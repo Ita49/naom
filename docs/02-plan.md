@@ -124,7 +124,7 @@ notifications (
 
 ## 4. Design System ✅ Real palette (2026-07-24, M7)
 
-The logo arrived: the Nigerian Army Ordnance Corps crest (green field, navy/red/gold service ribbon, gold "Service & Loyalty" banner, black eagle-and-star line art). Colors below were sampled directly from it — no maroon appears anywhere on the actual crest, so the M0 placeholder guess (maroon primary) has been replaced: primary moved to the ribbon's navy, and "supporting" took over the dark-army-green role using the crest's actual field green instead of a guessed shade.
+The logo arrived: the Nigerian Army Ordnance Corps crest (green field, navy/red/gold service ribbon, gold "Service & Loyalty" banner, black eagle-and-star line art) — source photo at `docs/assets/crest.jpg`. Colors below were sampled directly from it — no maroon appears anywhere on the actual crest, so the M0 placeholder guess (maroon primary) has been replaced: primary moved to the ribbon's navy, and "supporting" took over the dark-army-green role using the crest's actual field green instead of a guessed shade.
 
 | Token | Real value | Use |
 |---|---|---|
