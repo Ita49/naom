@@ -75,7 +75,11 @@ export function MemberRoster({ members }: { members: RosterMember[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-muted-foreground text-sm">No members match.</p>
+        <p className="text-muted-foreground text-sm">
+          {members.length === 0
+            ? "No one has signed up yet — share the app link to get started."
+            : "No members match."}
+        </p>
       ) : (
         <Table>
           <TableHeader>

@@ -1,5 +1,5 @@
-const CACHE_NAME = "naom-dues-shell-v1";
-const SHELL_URLS = ["/"];
+const CACHE_NAME = "naom-dues-shell-v2";
+const SHELL_URLS = ["/", "/offline"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -23,9 +23,20 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Network-first, falling back to the cached shell when offline.
+// Network-first. Page navigations fall back to the offline page (never
+// a broken white "no internet" browser error); other GETs fall back to
+// their own cached response if there is one, otherwise let it fail.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        caches.match("/offline").then((res) => res || caches.match("/"))
+      )
+    );
+    return;
+  }
 
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))

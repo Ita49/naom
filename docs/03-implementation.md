@@ -142,17 +142,17 @@ VAPID keys and `CRON_SECRET` are mirrored into Vercel's Production/Preview/Devel
 
 ---
 
-## M7 — Polish & Install
+## M7 — Polish & Install 🚧 In progress (2026-07-24)
 
 **Goal:** ready for the association to actually start using it.
 
-1. PWA install pass: proper icon set (multiple sizes), splash screens, `theme_color`/`background_color` finalized, offline fallback page (at minimum, don't show a broken white screen with no network).
-2. **Swap in real brand colors/logo** the moment they're available — this is the one-file change plan §4 was designed for (`tailwind.config.ts` token values + manifest icons).
-3. Empty states (new member with no payments yet, admin roster before any members are invited) and error states (upload failure, network failure on submit) — these get hit immediately by real users and are worth real attention, not placeholder "Error" text.
-4. Basic input validation throughout (amount > 0, date not in the future, etc.) — client-side for UX, but never trust it as the security boundary; the RLS policies from M1 remain the real boundary.
-5. Walk the developer + treasurer through the real flow end-to-end once with the actual association's data before inviting the full ~100 members — this is the point to catch anything the plan missed.
+1. [x] PWA install pass: icon set confirmed correctly sized (192, 512, 512-maskable, 180 apple-touch — already in place since M0, verified via `file`, nothing missing). `theme_color`/`background_color` confirmed consistent across `manifest.json`, `layout.tsx` viewport, and `globals.css` tokens. Added a real offline fallback page (`/offline`) — the service worker now falls back to it on navigation failures instead of the browser's bare "no internet" error; bumped the SW cache version so the new precache takes effect. **Splash screens deferred** — genuine iOS splash images need the real logo/colors (item 2), so building bespoke placeholder ones now would just be thrown away; iOS falls back to a plain `background_color` splash in the meantime, which is acceptable for this phase.
+2. [ ] **Swap in real brand colors/logo** — still blocked on the logo, which hasn't arrived. No action possible yet; the one-file swap path from M0 remains ready.
+3. [x] Empty states: fixed the one real gap — the Member Roster said "No members match" even when literally no one had signed up yet, which is misleading before self-signup (see the post-M6 entry above) has been used. Now distinguishes "No one has signed up yet — share the app link to get started" from "no members match your filter." Everything else (member dashboard, payment history, admin dashboard, verification queue, member detail) already had reasonable empty states from M2–M5. Error states (upload failure, insert failure) were already surfaced via toasts since M2/M3 — no gaps found.
+4. [x] Basic input validation: amount/date already had client-side guards (`min`, `max`, `required`) since M2/M3/M5. Added the one missing defense-in-depth piece: a `payments_paid_at_not_future` CHECK constraint at the DB level (client-side `max` on a date input can be bypassed; this can't) — applies uniformly to member-submitted, admin-backfill, and admin-manual payments since it's on the table, not any one insert path.
+5. [ ] **Still to do — real-world steps, not buildable from here:** the developer + treasurer walkthrough with real data, PWA install + push confirmation on an actual Android and iOS phone, and the eventual logo/color swap. These need you and the treasurer directly; ping me for anything that surfaces during that walkthrough.
 
-**Demo check:** a non-technical treasurer can, unassisted, verify a real payment and read the dashboard correctly.
+**Demo check:** partially verified — the buildable pieces (offline page, roster empty state, DB constraint) were confirmed directly against the real backend (a future-dated payment insert was rejected, a past-dated one accepted, test data cleaned up afterward). The actual "non-technical treasurer verifies a real payment unassisted" check is the real-world step in item 5 above.
 
 ---
 
