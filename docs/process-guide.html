@@ -1,0 +1,1606 @@
+<title>NAOM Dues | How It Works</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* NAOM Dues real brand palette (sampled from the association's crest —
+     see src/app/globals.css for the same tokens used in the live app).
+     --purple/--purple-dark here carry the app's navy primary; --gold is
+     the crest's ribbon/banner gold; --green/--red are the app's actual
+     status-paid/status-overdue colors. */
+  :root {
+    --purple: #3c4e69;
+    --purple-dark: #26323f;
+    --purple-soft: #6c84a3;
+    --gold: #ccba69;
+    --white: #ffffff;
+    --grey: #6b5f52;
+    --light-grey: #f7f3f9;
+    --green: #2e7d32;
+    --red: #b3261e;
+    --sidebar-width: 260px;
+    --header-height: 68px;
+    --footer-height: 52px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--white);
+    color: #222;
+  }
+
+  /* ---------- Header ---------- */
+  header.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .brand-name {
+    color: var(--gold);
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: 0.3px;
+  }
+
+  .brand-sub {
+    color: var(--white);
+    font-size: 0.85rem;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+
+  .header-right {
+    color: var(--white);
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 8px;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background: var(--gold);
+    margin: 4px 0;
+    border-radius: 2px;
+  }
+
+  /* ---------- Layout ---------- */
+  .app-shell {
+    display: flex;
+    margin-top: var(--header-height);
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  }
+
+  /* ---------- Sidebar ---------- */
+  nav.sidebar {
+    position: fixed;
+    top: var(--header-height);
+    bottom: var(--footer-height);
+    left: 0;
+    width: var(--sidebar-width);
+    background: var(--purple-dark);
+    padding: 24px 0;
+    overflow-y: auto;
+    z-index: 150;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-title {
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 0 24px 16px;
+    margin: 0;
+  }
+
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 24px;
+    color: #d8c8e2;
+    cursor: pointer;
+    font-size: 0.92rem;
+    border-left: 4px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .nav-item .nav-icon {
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .nav-item:hover {
+    background: rgba(245, 166, 35, 0.12);
+    color: var(--white);
+  }
+
+  .nav-item.active {
+    background: var(--gold);
+    color: var(--purple-dark);
+    font-weight: 700;
+    border-left-color: var(--white);
+  }
+
+  /* ---------- Main content ---------- */
+  main.content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    background: var(--white);
+    padding: 40px 48px 60px;
+    width: calc(100% - var(--sidebar-width));
+  }
+
+  .flow-panel {
+    max-width: 1220px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .flow-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .flow-title {
+    color: var(--purple);
+    font-weight: 800;
+    font-size: 1.9rem;
+    margin: 0 0 8px;
+  }
+
+  .flow-description {
+    color: var(--grey);
+    font-size: 1rem;
+    margin: 0 0 18px;
+    max-width: 760px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Legend + toolbar ---------- */
+  .diagram-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.74rem;
+    color: var(--grey);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-swatch {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    border: 1.5px solid var(--gold);
+  }
+
+  .legend-swatch.terminator { background: var(--purple); border-radius: 50%; }
+  .legend-swatch.process { background: var(--purple); border-radius: 3px; }
+  .legend-swatch.subprocess { background: var(--purple); border-radius: 3px; box-shadow: inset 3px 0 0 var(--gold), inset -3px 0 0 var(--gold); }
+  .legend-swatch.decision { background: var(--gold); border-radius: 2px; transform: rotate(45deg); }
+  .legend-swatch.success { background: var(--green); border-radius: 50%; }
+  .legend-swatch.reject { background: var(--red); border-radius: 50%; }
+
+  .icon-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1.5px solid var(--purple);
+    color: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    opacity: 0.72;
+  }
+
+  .icon-btn svg { width: 16px; height: 16px; }
+
+  .icon-btn:hover {
+    opacity: 1;
+    background: var(--purple);
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .icon-btn:active { transform: scale(0.94); }
+
+  .icon-btn .icon-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--purple-dark);
+    color: var(--gold);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .icon-btn:hover .icon-tooltip { opacity: 1; }
+  .icon-btn .icon-tooltip.persist { opacity: 1; }
+
+  /* ---------- Swimlane diagram card ---------- */
+  .swimlane-card {
+    border: 1px solid #e8e0ee;
+    border-radius: 12px;
+    background: var(--white);
+    box-shadow: 0 6px 22px rgba(79, 31, 99, 0.08);
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+
+  .swimlane-body {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .lane-labels {
+    flex: 0 0 148px;
+    border-right: 2px solid #ece3f2;
+    background: #fbf8fd;
+  }
+
+  .lane-label-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-bottom: 1px solid #ece3f2;
+    font-weight: 700;
+    font-size: 0.76rem;
+    color: var(--purple);
+    border-left: 4px solid transparent;
+  }
+
+  .lane-label-row:last-child { border-bottom: none; }
+
+  .lane-label-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .diagram-scroll {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background:
+      radial-gradient(ellipse at top right, rgba(245,166,35,0.06), transparent 60%),
+      var(--white);
+  }
+
+  .diagram-scroll svg { display: block; }
+
+  .flow-node { cursor: pointer; outline: none; }
+
+  .flow-node .node-shape {
+    transition: filter 0.2s ease, transform 0.2s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .flow-node:hover .node-shape,
+  .flow-node:focus .node-shape {
+    filter: drop-shadow(0 8px 16px rgba(79, 31, 99, 0.38));
+    transform: scale(1.035);
+  }
+
+  .flow-node .node-hint {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .flow-node:hover .node-hint,
+  .flow-node:focus .node-hint {
+    opacity: 1;
+  }
+
+  @keyframes nodeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .node-anim {
+    animation: nodeIn 0.5s ease both;
+    transform-box: fill-box;
+  }
+
+  /* ---------- Node detail modal ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 16, 64, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+    z-index: 500;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-card {
+    background: var(--white);
+    max-width: 480px;
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+    transform: translateY(14px) scale(0.98);
+    transition: transform 0.25s ease;
+  }
+
+  .modal-overlay.show .modal-card {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-header {
+    background: var(--purple);
+    color: var(--white);
+    padding: 20px 22px 16px;
+    position: relative;
+  }
+
+  .modal-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--gold);
+    color: var(--purple-dark);
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0;
+    padding-right: 26px;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .modal-close:hover { color: var(--white); }
+
+  .modal-body {
+    padding: 20px 22px 8px;
+    color: #333;
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px 20px;
+    gap: 10px;
+  }
+
+  .modal-nav-btn {
+    background: none;
+    border: 1.5px solid var(--purple);
+    color: var(--purple);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .modal-nav-btn:hover:not(:disabled) {
+    background: var(--purple);
+    color: var(--gold);
+  }
+
+  .modal-nav-btn:disabled {
+    opacity: 0.32;
+    cursor: default;
+  }
+
+  .modal-step-count {
+    font-size: 0.72rem;
+    color: var(--grey);
+    font-weight: 600;
+  }
+
+  /* ---------- Footer ---------- */
+  footer.site-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--footer-height);
+    background: var(--purple);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    z-index: 200;
+  }
+
+  /* ---------- Overlay for mobile ---------- */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 140;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px) {
+    .hamburger {
+      display: block;
+    }
+
+    nav.sidebar {
+      transform: translateX(-100%);
+      box-shadow: 4px 0 16px rgba(0,0,0,0.25);
+    }
+
+    nav.sidebar.open {
+      transform: translateX(0);
+    }
+
+    main.content {
+      margin-left: 0;
+      width: 100%;
+      padding: 28px 20px 60px;
+    }
+
+    .header-right {
+      display: none;
+    }
+
+    .flow-title {
+      font-size: 1.5rem;
+    }
+
+    .lane-labels {
+      flex-basis: 104px;
+    }
+
+    .lane-label-row {
+      font-size: 0.66rem;
+      padding: 0 8px;
+    }
+  }
+</style>
+
+<header class="site-header">
+  <div class="header-left">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <span class="brand-name">NAOM Dues</span>
+    <span class="brand-sub">How It Works — Step by Step</span>
+  </div>
+  <div class="header-right" id="currentDate"></div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <p class="sidebar-title">Choose a Guide</p>
+    <ul class="nav-list" id="navList"></ul>
+  </nav>
+
+  <main class="content">
+    <div class="flow-panel" id="flowPanel">
+      <h1 class="flow-title" id="flowTitle"></h1>
+      <p class="flow-description" id="flowDescription"></p>
+
+      <div class="diagram-toolbar">
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch terminator"></span>Start / End</span>
+          <span class="legend-item"><span class="legend-swatch process"></span>Process step</span>
+          <span class="legend-item"><span class="legend-swatch subprocess"></span>Subprocess (see other flow)</span>
+          <span class="legend-item"><span class="legend-swatch decision"></span>Decision</span>
+          <span class="legend-item"><span class="legend-swatch success"></span>Positive outcome</span>
+          <span class="legend-item"><span class="legend-swatch reject"></span>Negative outcome</span>
+          <span class="legend-item">Click any step for details</span>
+        </div>
+        <div class="icon-toolbar">
+          <button class="icon-btn" id="exportPngBtn" type="button">
+            <span class="icon-tooltip" id="exportTooltip">Export as PNG</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="icon-btn" id="copyCodeBtn" type="button">
+            <span class="icon-tooltip" id="copyTooltip">Copy Mermaid Code</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="swimlane-card">
+        <div class="swimlane-body">
+          <div class="lane-labels" id="laneLabels"></div>
+          <div class="diagram-scroll" id="diagramScroll"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer">
+  NAOM Dues &copy; 2026 | Association Dues &amp; Remittance Tracking
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <span class="modal-role" id="modalRole"></span>
+      <h2 class="modal-title" id="modalTitle"></h2>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="modal-nav-btn" id="modalPrev">&larr; Previous step</button>
+      <span class="modal-step-count" id="modalStepCount"></span>
+      <button class="modal-nav-btn" id="modalNext">Next step &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  // ===========================================================================
+  // FLOW DATA — replace everything in this array with the real project's flows.
+  // Keep 4-12 flows typically; each renders as one swimlane diagram in the nav.
+  //
+  // Per flow:
+  //   id           unique slug
+  //   icon         HTML entity or literal emoji shown in the sidebar nav
+  //   title        exact flow title as it should render
+  //   description  1 sentence, shown greyed-out under the title
+  //   mermaidCode  RAW mermaid flowchart source for this flow (used only by
+  //                the "Copy Mermaid Code" button — keep it accurate even
+  //                though it is not what actually renders on screen)
+  //   lanes        ordered top-to-bottom; each { id, label, icon, accent }
+  //                accent is a hex color for that lane's left border stripe —
+  //                pick from the brand palette (e.g. gold for external actors,
+  //                purple for internal staff, purple-soft for systems)
+  //   nodes        each { id, lane, type, label, detail }
+  //                type is one of: start | end | process | subprocess |
+  //                                decision | success | reject | neutral
+  //                  start      — pill, the entry point, no incoming edges.
+  //                               A flow should have exactly one.
+  //                  end        — pill, identical style to start (that's the
+  //                               actual ANSI/ISO convention — terminators
+  //                               are distinguished by position/text, not
+  //                               color). You rarely need to set this
+  //                               explicitly: any 'process' node with zero
+  //                               outgoing edges is auto-promoted to this
+  //                               style at render time, so a forgotten
+  //                               dead-end can't silently look like an
+  //                               ordinary mid-flow step.
+  //                  process    — rounded rect, the default action step.
+  //                               Must have exactly one outgoing edge (or
+  //                               zero, in which case it renders as 'end'
+  //                               automatically). If you need it to fan out
+  //                               to more than one next step, either they're
+  //                               unlabeled parallel/simultaneous actions
+  //                               (fine), or they're conditional on
+  //                               something — in which case this must be a
+  //                               'decision' instead, never a labeled
+  //                               fan-out from a rectangle.
+  //                  subprocess — rect with double side bars ("predefined
+  //                               process" in ANSI terms). Use for a step
+  //                               that hands off to another documented flow
+  //                               rather than being a first-class action
+  //                               here (e.g. "Run the Matching flow").
+  //                  decision   — diamond. Needs 2+ outgoing edges, and
+  //                               EVERY outgoing edge needs a `label`
+  //                               (e.g. "Yes"/"No") — an unlabeled branch
+  //                               out of a diamond is always a mistake.
+  //                  success    — green pill, a genuinely positive outcome
+  //                  reject     — red pill, a genuinely negative outcome
+  //                  neutral    — grey pill, a dead-end that isn't clearly
+  //                               success or failure
+  //                detail is 1-3 sentences for the click-to-open modal. Pull
+  //                this from the project's own docs (specs, tickets, runbooks)
+  //                rather than inventing generic text — ask the user for
+  //                source material if none was provided.
+  //   edges        each { from, to, label?, loop? }
+  //                label is shown as a gold pill on the connector (e.g.
+  //                  "Yes" / "No" / a named condition) — required on every
+  //                  edge leaving a decision, must be absent on parallel
+  //                  fan-out from a process node.
+  //                loop: true marks a feedback/back-edge — "send back for
+  //                  revision", "retry", "incomplete, request again". It's
+  //                  excluded from layout ranking (so it can't create a
+  //                  cycle) and drawn dashed, routed through a channel below
+  //                  the whole diagram, instead of as an ordinary forward
+  //                  connector. Never model a backward reference as a plain
+  //                  edge — it will corrupt the layout.
+  //
+  // A dev-time console.warn() runs automatically over every flow at load
+  // (see validateFlow near the bottom of this script) and flags the most
+  // common authoring mistakes: unlabeled decision branches, a decision with
+  // only one way out, a process node quietly doing conditional branching,
+  // duplicate edges, and a missing/duplicated entry point. Check the
+  // console after editing flow data.
+  //
+  // Layout is fully automatic: nodes are ranked by longest path from a source
+  // and placed in their assigned lane, so you never set x/y by hand — you
+  // only assign each node to a lane and wire up edges. See SKILL.md for the
+  // known layout pitfalls (edge-label collisions, CSS transform on SVG, etc.)
+  // before changing COL_WIDTH or other layout constants below.
+  // ===========================================================================
+  const flows = [
+    {
+      id: 'member-pay-dues',
+      icon: '&#128241;',
+      title: 'Member: Getting Started & Paying Dues',
+      description: 'From getting the app link to submitting a payment and being notified once it is checked.',
+      mermaidCode: `flowchart LR
+  A([Get the App Link]) --> B[Open the Link and Enter Your Email]
+  B --> C[Emailed a One-Tap Sign-In Link]
+  C --> D[Tap the Link in the Email]
+  D --> E{First Time Here?}
+  E -- Yes --> F[Enter Your Full Name and Phone Number]
+  E -- No --> G[Land on Your Dashboard]
+  F --> G
+  G --> H[Tap Submit a Payment]
+  H --> I[Enter Amount, Date and Receipt Photo]
+  I --> J[Payment Marked Pending Review]
+  J --> K[[Treasurer Reviews the Payment]]
+  K --> L{Approved?}
+  L -- Approved --> M([Notified: Payment Verified])
+  L -- Rejected --> N[Notified: Payment Rejected With a Reason]
+  N -- Submit again --> H`,
+      lanes: [
+        { id: 'member', label: 'Member (You)', icon: '\u{1F464}', accent: '#ccba69' },
+        { id: 'app', label: 'The App', icon: '\u{2699}\u{FE0F}', accent: '#3a7853' },
+        { id: 'treasurer', label: 'Treasurer', icon: '\u{1F396}\u{FE0F}', accent: '#3c4e69' }
+      ],
+      nodes: [
+        { id: 'A', lane: 'member', type: 'start', label: 'Get the App Link', detail: 'The treasurer or developer shares one link (naom-one.vercel.app), usually over WhatsApp. That is the only address you need — there is nothing to find or download from an app store.' },
+        { id: 'B', lane: 'member', type: 'process', label: 'Open the Link & Enter Your Email', detail: 'Open the link in your phone’s browser. On the sign-in screen, type your email address and tap "Send sign-in link." There is no password to create or remember.' },
+        { id: 'C', lane: 'app', type: 'process', label: 'Emailed a One-Tap Sign-In Link', detail: 'Within a minute or two you get an email with a secure link (a "magic link"). Clicking it signs you in automatically — nobody else can, since it only works from your own inbox.' },
+        { id: 'D', lane: 'member', type: 'process', label: 'Tap the Link in the Email', detail: 'Open the email on the same phone and tap the link. It takes you straight back into the app, already signed in.' },
+        { id: 'E', lane: 'app', type: 'decision', label: 'First Time Here?', detail: 'The app checks whether this email has been seen before. Anyone with the link can join — there is no separate sign-up step or approval needed from the treasurer.' },
+        { id: 'F', lane: 'member', type: 'process', label: 'Enter Your Full Name & Phone Number', detail: 'The very first time only, you are asked for your name and phone number so the treasurer can recognize you on the roster. Takes a few seconds and never happens again.' },
+        { id: 'G', lane: 'member', type: 'process', label: 'Land on Your Dashboard', detail: 'Your home screen: whether this month is Paid, Partial, or Unpaid, plus any arrears — unpaid dues carried over from earlier months.' },
+        { id: 'H', lane: 'member', type: 'process', label: "Tap 'Submit a Payment'", detail: 'Whenever you have paid your dues — by bank transfer or however your association collects — come here to log it.' },
+        { id: 'I', lane: 'member', type: 'process', label: 'Enter Amount, Date & Receipt Photo (Optional)', detail: 'Type how much you paid and the date. A photo of your receipt is optional but recommended — it is the fastest way for the treasurer to confirm it. Photos are compressed automatically so they upload quickly even on a slow connection.' },
+        { id: 'J', lane: 'app', type: 'process', label: "Payment Marked 'Pending Review'", detail: 'Your submission is saved right away as Pending. Nothing is confirmed yet — a treasurer still has to check it before it counts toward your status.' },
+        { id: 'K', lane: 'treasurer', type: 'subprocess', label: 'Treasurer Reviews the Payment', detail: 'Hands off to the "Treasurer: Verify a Payment" guide — see that one for exactly what happens on their side.' },
+        { id: 'L', lane: 'app', type: 'decision', label: 'Approved?', detail: 'Every submission is either approved (and applied to the right month) or rejected with a reason — never left in limbo.' },
+        { id: 'M', lane: 'member', type: 'success', label: 'Notified: Payment Verified', detail: 'If you have notifications turned on, you get a push alert the moment it is confirmed, and your dashboard updates immediately.' },
+        { id: 'N', lane: 'member', type: 'reject', label: 'Notified: Payment Rejected (with a Reason)', detail: 'If something does not match — wrong amount, unclear receipt — it is rejected with a specific reason instead of silently vanishing. Check your Payment History and submit again.' }
+      ],
+      edges: [
+        { from: 'A', to: 'B' },
+        { from: 'B', to: 'C' },
+        { from: 'C', to: 'D' },
+        { from: 'D', to: 'E' },
+        { from: 'E', to: 'F', label: 'Yes' },
+        { from: 'E', to: 'G', label: 'No' },
+        { from: 'F', to: 'G' },
+        { from: 'G', to: 'H' },
+        { from: 'H', to: 'I' },
+        { from: 'I', to: 'J' },
+        { from: 'J', to: 'K' },
+        { from: 'K', to: 'L' },
+        { from: 'L', to: 'M', label: 'Approved' },
+        { from: 'L', to: 'N', label: 'Rejected' },
+        { from: 'N', to: 'H', label: 'Submit again', loop: true }
+      ]
+    },
+    {
+      id: 'treasurer-verify-payment',
+      icon: '&#129534;',
+      title: 'Treasurer: Verify a Payment',
+      description: 'Reviewing a submitted receipt and approving or rejecting it — the core of keeping the books accurate.',
+      mermaidCode: `flowchart LR
+  A([Sign In]) --> B[Open the Admin Dashboard]
+  B --> C[Tap Review Queue]
+  C --> D[See All Pending Payments]
+  D --> E[Tap One to Review]
+  E --> F[Check Which Months It Covers]
+  F --> G{Does Everything Check Out?}
+  G -- Yes, Approve --> H[Tap Approve]
+  G -- No, Reject --> I[Tap Reject and Type a Reason]
+  H --> J([Marked Verified])
+  I --> K([Marked Rejected])
+  J --> L[Member Notified Instantly]
+  K --> L
+  L --> M[Dashboards and Roster Update Automatically]`,
+      lanes: [
+        { id: 'treasurer', label: 'Treasurer', icon: '\u{1F396}\u{FE0F}', accent: '#3c4e69' },
+        { id: 'app', label: 'The App', icon: '\u{2699}\u{FE0F}', accent: '#3a7853' },
+        { id: 'member', label: 'Member', icon: '\u{1F464}', accent: '#ccba69' }
+      ],
+      nodes: [
+        { id: 'A', lane: 'treasurer', type: 'start', label: 'Sign In', detail: 'The treasurer and developer are already set up as admins from day one — no separate registration. Open the app link, enter your email, tap the sign-in link that arrives by email, same as anyone else.' },
+        { id: 'B', lane: 'treasurer', type: 'process', label: 'Open the Admin Dashboard', detail: 'The treasurer’s home screen: this month’s collection percentage and naira total, how many members are in arrears, and a count of payments waiting to be reviewed.' },
+        { id: 'C', lane: 'treasurer', type: 'process', label: "Tap 'Review Queue'", detail: 'Shows every payment members have submitted that has not been checked yet, most recent first.' },
+        { id: 'D', lane: 'app', type: 'process', label: 'See All Pending Payments', detail: 'Each entry shows the member’s name, amount, date, and a small thumbnail of their receipt photo, if they attached one.' },
+        { id: 'E', lane: 'treasurer', type: 'process', label: 'Tap One to Review', detail: 'Opens a detail view with the full-size receipt photo (if provided) and any note the member added.' },
+        { id: 'F', lane: 'treasurer', type: 'process', label: 'Check Which Months It Covers', detail: 'The app suggests how to apply the payment automatically — oldest unpaid month first, splitting it across several months if the amount covers more than one. You can adjust this by hand if the member’s note says otherwise.' },
+        { id: 'G', lane: 'treasurer', type: 'decision', label: 'Does Everything Check Out?', detail: 'Does the receipt match the amount and date entered? Is the member who they say they are? This is the one judgment call in the whole flow — everything else is automatic.' },
+        { id: 'H', lane: 'treasurer', type: 'process', label: 'Tap Approve', detail: 'One tap confirms the payment and applies it to the months you selected, all in a single action — there is no in-between state where money is confirmed but not yet applied anywhere.' },
+        { id: 'I', lane: 'treasurer', type: 'process', label: 'Tap Reject & Type a Reason', detail: 'Rejecting always requires a short reason (e.g. "amount doesn’t match the receipt"). The member sees this exact reason, so they know what to fix.' },
+        { id: 'J', lane: 'app', type: 'success', label: 'Marked Verified', detail: 'The payment’s status flips to Verified immediately, along with exactly which months it now counts toward.' },
+        { id: 'K', lane: 'app', type: 'reject', label: 'Marked Rejected', detail: 'The payment stays on record — nothing is deleted — with its Rejected status and your reason attached, for a full history.' },
+        { id: 'L', lane: 'member', type: 'process', label: 'Member Notified Instantly', detail: 'If the member has notifications turned on, they get a push alert the moment you approve or reject — they do not have to keep checking the app.' },
+        { id: 'M', lane: 'treasurer', type: 'process', label: 'Dashboards & Roster Update Automatically', detail: 'Collection percentage, arrears, and the member’s status on the roster all reflect the change immediately — nothing further to do.' }
+      ],
+      edges: [
+        { from: 'A', to: 'B' },
+        { from: 'B', to: 'C' },
+        { from: 'C', to: 'D' },
+        { from: 'D', to: 'E' },
+        { from: 'E', to: 'F' },
+        { from: 'F', to: 'G' },
+        { from: 'G', to: 'H', label: 'Yes, Approve' },
+        { from: 'G', to: 'I', label: 'No, Reject' },
+        { from: 'H', to: 'J' },
+        { from: 'I', to: 'K' },
+        { from: 'J', to: 'L' },
+        { from: 'K', to: 'L' },
+        { from: 'L', to: 'M' }
+      ]
+    },
+    {
+      id: 'treasurer-manage-members',
+      icon: '&#128101;',
+      title: 'Treasurer: Manage Members',
+      description: 'Browsing the roster, recording a payment made outside the app, and deactivating someone who has left.',
+      mermaidCode: `flowchart LR
+  A([Open Member Roster]) --> B[See Every Member Status and Arrears]
+  B --> C[Search, Filter and Tap a Member]
+  C --> D[See Full Payment History]
+  D --> E{What Do You Need to Do?}
+  E -- Record a Past Payment --> F[Tap Backfill Payment and Enter Details]
+  E -- Member Is Leaving --> G[Tap Deactivate Member]
+  E -- Just Checking --> H([Done, No Action Needed])
+  F --> I([Recorded and Verified Immediately])
+  G --> J([Member Marked Inactive])`,
+      lanes: [
+        { id: 'treasurer', label: 'Treasurer', icon: '\u{1F396}\u{FE0F}', accent: '#3c4e69' },
+        { id: 'app', label: 'The App', icon: '\u{2699}\u{FE0F}', accent: '#3a7853' }
+      ],
+      nodes: [
+        { id: 'A', lane: 'treasurer', type: 'start', label: 'Open Member Roster', detail: 'Found in the admin section — a searchable list of every member.' },
+        { id: 'B', lane: 'app', type: 'process', label: "See Every Member's Status & Arrears", detail: 'Each row shows the member’s current-month status (Paid, Partial, Unpaid) and their total arrears, computed automatically from their payment history — nobody has to add this up by hand.' },
+        { id: 'C', lane: 'treasurer', type: 'process', label: 'Search, Filter & Tap a Member', detail: 'Search by name, or filter to just members who are Unpaid, then tap anyone to open their full profile.' },
+        { id: 'D', lane: 'app', type: 'process', label: 'See Full Payment History', detail: 'Every payment that member has ever submitted or had recorded on their behalf, month by month, including receipts where available.' },
+        { id: 'E', lane: 'treasurer', type: 'decision', label: 'What Do You Need to Do?', detail: 'From a member’s profile, a treasurer can either log a payment that did not come through the app, deactivate someone who has left, or simply be browsing.' },
+        { id: 'F', lane: 'treasurer', type: 'process', label: "Tap 'Backfill Payment' & Enter Details", detail: 'For dues paid before the app existed, or paid in person/cash outside the submit-a-receipt flow. Enter the amount, date, and which months it covers — same allocation helper as the verify flow.' },
+        { id: 'G', lane: 'treasurer', type: 'process', label: "Tap 'Deactivate Member'", detail: 'For someone who has left the association. This does not delete their history — past payments stay on record — it just stops them counting toward active-member totals like this month’s collection percentage.' },
+        { id: 'H', lane: 'treasurer', type: 'neutral', label: 'Done — No Action Needed', detail: 'Just browsing the roster does not change anything.' },
+        { id: 'I', lane: 'app', type: 'success', label: 'Recorded & Verified Immediately', detail: 'Unlike a member’s own submission, a backfilled payment does not wait in a queue — it is marked Verified right away since a treasurer entered it directly. It is tagged "Backfilled" everywhere it appears, so it is always clear it did not come from a receipt.' },
+        { id: 'J', lane: 'app', type: 'neutral', label: 'Member Marked Inactive', detail: 'They can be reactivated the same way later if they rejoin — nothing is lost.' }
+      ],
+      edges: [
+        { from: 'A', to: 'B' },
+        { from: 'B', to: 'C' },
+        { from: 'C', to: 'D' },
+        { from: 'D', to: 'E' },
+        { from: 'E', to: 'F', label: 'Record a Past Payment' },
+        { from: 'E', to: 'G', label: 'Member Is Leaving' },
+        { from: 'E', to: 'H', label: 'Just Checking' },
+        { from: 'F', to: 'I' },
+        { from: 'G', to: 'J' }
+      ]
+    }
+  ];
+
+  let currentFlowIndex = 0;
+  let renderToken = 0;
+  let currentModalNodes = [];
+  let currentModalIndex = -1;
+
+  const navList = document.getElementById('navList');
+  const flowPanel = document.getElementById('flowPanel');
+  const flowTitle = document.getElementById('flowTitle');
+  const flowDescription = document.getElementById('flowDescription');
+  const laneLabelsEl = document.getElementById('laneLabels');
+  const diagramScroll = document.getElementById('diagramScroll');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalRole = document.getElementById('modalRole');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalPrev = document.getElementById('modalPrev');
+  const modalNext = document.getElementById('modalNext');
+  const modalStepCount = document.getElementById('modalStepCount');
+  const modalClose = document.getElementById('modalClose');
+
+  function buildNav() {
+    flows.forEach((flow, index) => {
+      const li = document.createElement('li');
+      li.className = 'nav-item' + (index === 0 ? ' active' : '');
+      li.dataset.index = index;
+      li.innerHTML = '<span class="nav-icon">' + flow.icon + '</span><span>' + flow.title + '</span>';
+      li.addEventListener('click', () => selectFlow(index));
+      navList.appendChild(li);
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+   * Swimlane layout engine
+   * Ranks nodes by longest path from a source (Sugiyama-style layering),
+   * places them in their assigned lane, and stacks nodes that collide in
+   * the same (lane, rank) cell into sub-rows.
+   * ------------------------------------------------------------------- */
+  const COL_WIDTH = 340;
+  const MARGIN_LEFT = 50;
+  const MARGIN_RIGHT = 60;
+  const CELL_H = 100;
+  const ROW_GAP = 26;
+  const LANE_V_PAD = 26;
+  const PROCESS_W = 190;
+  const PROCESS_H = 64;
+  const DECISION_W = 200;
+  const DECISION_H = 86;
+  const LOOP_MARGIN = 70;
+
+  function computeLayout(flow) {
+    const { lanes, nodes, edges } = flow;
+    const laneIndex = {};
+    lanes.forEach((l, i) => { laneIndex[l.id] = i; });
+
+    // `loop: true` marks a feedback/back-edge (e.g. "send back for revision",
+    // "retry"). It's excluded from the rank pass below so it can't turn the
+    // graph into a cycle, and is drawn separately via an external routing
+    // channel beneath the diagram (see renderDiagram) instead of a normal
+    // forward connector.
+    const forwardEdges = edges.filter(e => !e.loop);
+    const outgoing = {};
+    const inDegree = {};
+    nodes.forEach(n => { outgoing[n.id] = []; inDegree[n.id] = 0; });
+    forwardEdges.forEach(e => { outgoing[e.from].push(e); inDegree[e.to]++; });
+
+    const rank = {};
+    nodes.forEach(n => { rank[n.id] = 0; });
+    const queue = nodes.filter(n => inDegree[n.id] === 0).map(n => n.id);
+    const inDegreeWork = Object.assign({}, inDegree);
+    while (queue.length) {
+      const id = queue.shift();
+      outgoing[id].forEach(e => {
+        rank[e.to] = Math.max(rank[e.to], rank[id] + 1);
+        inDegreeWork[e.to]--;
+        if (inDegreeWork[e.to] === 0) queue.push(e.to);
+      });
+    }
+
+    const cellMap = {};
+    const ordered = [...nodes].sort((a, b) => rank[a.id] - rank[b.id]);
+    ordered.forEach(n => {
+      const key = laneIndex[n.lane] + ':' + rank[n.id];
+      if (!cellMap[key]) cellMap[key] = [];
+      cellMap[key].push(n.id);
+    });
+
+    const subRow = {};
+    const laneMaxStack = lanes.map(() => 1);
+    Object.keys(cellMap).forEach(key => {
+      const li = parseInt(key.split(':')[0], 10);
+      const ids = cellMap[key];
+      ids.forEach((id, idx) => { subRow[id] = idx; });
+      laneMaxStack[li] = Math.max(laneMaxStack[li], ids.length);
+    });
+
+    const laneHeights = lanes.map((l, i) => LANE_V_PAD * 2 + laneMaxStack[i] * CELL_H + (laneMaxStack[i] - 1) * ROW_GAP);
+    const laneY = [];
+    let acc = 0;
+    laneHeights.forEach(h => { laneY.push(acc); acc += h; });
+    const hasLoopEdges = edges.some(e => e.loop);
+    const loopChannelY = acc + LOOP_MARGIN / 2;
+    const totalHeight = acc + (hasLoopEdges ? LOOP_MARGIN : 0);
+
+    const maxRank = nodes.reduce((m, n) => Math.max(m, rank[n.id]), 0);
+    const totalWidth = MARGIN_LEFT + maxRank * COL_WIDTH + PROCESS_W + MARGIN_RIGHT;
+
+    const positions = {};
+    nodes.forEach(n => {
+      const li = laneIndex[n.lane];
+      const cx = MARGIN_LEFT + PROCESS_W / 2 + rank[n.id] * COL_WIDTH;
+      const cy = laneY[li] + LANE_V_PAD + subRow[n.id] * (CELL_H + ROW_GAP) + CELL_H / 2;
+      const isDecision = n.type === 'decision';
+      const w = isDecision ? DECISION_W : PROCESS_W;
+      const h = isDecision ? DECISION_H : PROCESS_H;
+      positions[n.id] = { cx, cy, w, h, rank: rank[n.id] };
+    });
+
+    return { positions, laneHeights, laneY, totalWidth, totalHeight, loopChannelY };
+  }
+
+  function wrapLabel(ctx, text, maxWidth, font) {
+    ctx.font = font;
+    const words = text.split(' ');
+    const lines = [];
+    let current = '';
+    words.forEach(word => {
+      const test = current ? current + ' ' + word : word;
+      if (current && ctx.measureText(test).width > maxWidth) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = test;
+      }
+    });
+    if (current) lines.push(current);
+    return lines;
+  }
+
+  // Shape families follow standard flowchart convention: pill = terminator
+  // (start/end — both use the *same* style, distinguished by position and
+  // text, not color — that's the ANSI/ISO convention, not a stylistic
+  // choice), rect = process, diamond = decision, subprocess = predefined
+  // process (references another documented flow instead of being a
+  // first-class step here).
+  const TYPE_STYLE = {
+    start: { fill: '#4f1f63', gradFrom: '#5c2777', gradTo: '#3d1750', stroke: '#f5a623', text: '#ffffff', shape: 'pill' },
+    end: { fill: '#4f1f63', gradFrom: '#5c2777', gradTo: '#3d1750', stroke: '#f5a623', text: '#ffffff', shape: 'pill' },
+    process: { fill: '#4f1f63', gradFrom: '#5c2777', gradTo: '#3d1750', stroke: '#f5a623', text: '#ffffff', shape: 'rect' },
+    subprocess: { fill: '#4f1f63', gradFrom: '#5c2777', gradTo: '#3d1750', stroke: '#f5a623', text: '#ffffff', shape: 'subprocess' },
+    decision: { fill: '#f5a623', gradFrom: '#f8b84f', gradTo: '#e8940a', stroke: '#4f1f63', text: '#2d1040', shape: 'diamond' },
+    success: { fill: '#2f8f5b', gradFrom: '#3aa76c', gradTo: '#256e47', stroke: '#f5a623', text: '#ffffff', shape: 'pill', icon: '✓' },
+    reject: { fill: '#b0433f', gradFrom: '#c15450', gradTo: '#8f3330', stroke: '#f5a623', text: '#ffffff', shape: 'pill', icon: '✕' },
+    neutral: { fill: '#786a82', gradFrom: '#8a7c93', gradTo: '#655a6d', stroke: '#f5a623', text: '#ffffff', shape: 'pill' }
+  };
+
+  let gradientCounter = 0;
+
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS(SVG_NS, tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+    }
+    return el;
+  }
+
+  function renderDiagram(flow) {
+    const layout = computeLayout(flow);
+    const { positions, laneHeights, totalWidth, totalHeight } = layout;
+
+    // Lane label column
+    laneLabelsEl.innerHTML = '';
+    flow.lanes.forEach((lane, i) => {
+      const row = document.createElement('div');
+      row.className = 'lane-label-row';
+      row.style.height = laneHeights[i] + 'px';
+      row.style.borderLeftColor = lane.accent;
+      row.style.background = i % 2 === 0 ? '#fbf8fd' : '#ffffff';
+      row.innerHTML = '<span class="lane-label-icon">' + lane.icon + '</span><span>' + lane.label + '</span>';
+      laneLabelsEl.appendChild(row);
+    });
+
+    diagramScroll.innerHTML = '';
+    const svg = svgEl('svg', {
+      width: totalWidth,
+      height: totalHeight,
+      viewBox: '0 0 ' + totalWidth + ' ' + totalHeight
+    });
+
+    const defs = svgEl('defs');
+    const marker = svgEl('marker', {
+      id: 'arrowHead', viewBox: '0 0 10 10', refX: '9', refY: '5',
+      markerWidth: '8', markerHeight: '8', orient: 'auto-start-reverse'
+    });
+    marker.appendChild(svgEl('path', { d: 'M0,0 L10,5 L0,10 z', fill: '#4f1f63' }));
+    defs.appendChild(marker);
+
+    const shadowFilter = svgEl('filter', { id: 'nodeDropShadow', x: '-40%', y: '-40%', width: '180%', height: '180%' });
+    const feDrop = svgEl('feDropShadow', { dx: '0', dy: '3', stdDeviation: '3', 'flood-color': '#2d1040', 'flood-opacity': '0.28' });
+    shadowFilter.appendChild(feDrop);
+    defs.appendChild(shadowFilter);
+
+    Object.keys(TYPE_STYLE).forEach(typeKey => {
+      const style = TYPE_STYLE[typeKey];
+      const gradId = 'grad-' + typeKey + '-' + (gradientCounter++);
+      style._gradId = gradId;
+      const grad = svgEl('linearGradient', { id: gradId, x1: '0', y1: '0', x2: '0', y2: '1' });
+      grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': style.gradFrom }));
+      grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': style.gradTo }));
+      defs.appendChild(grad);
+    });
+
+    svg.appendChild(defs);
+
+    // Lane background bands
+    flow.lanes.forEach((lane, i) => {
+      svg.appendChild(svgEl('rect', {
+        x: 0, y: layout.laneY[i], width: totalWidth, height: laneHeights[i],
+        fill: i % 2 === 0 ? '#fbf8fd' : '#ffffff'
+      }));
+    });
+    flow.lanes.forEach((lane, i) => {
+      if (i === 0) return;
+      svg.appendChild(svgEl('line', {
+        x1: 0, y1: layout.laneY[i], x2: totalWidth, y2: layout.laneY[i],
+        stroke: '#ece3f2', 'stroke-width': 1
+      }));
+    });
+
+    // Edges (drawn before nodes so arrowheads sit under node shadows)
+    const edgeGroup = svgEl('g', { class: 'edge-group' });
+    const edgeEls = [];
+    flow.edges.forEach((edge, idx) => {
+      const p1 = positions[edge.from];
+      const p2 = positions[edge.to];
+      let d, lx, ly;
+
+      if (edge.loop) {
+        // Feedback/back-edge: route below all lanes via the shared loop
+        // channel, dashed, colored to read as "goes backward" at a glance —
+        // never draw a loop as an ordinary forward connector, it breaks the
+        // left-to-right reading convention.
+        const x1 = p1.cx, y1 = p1.cy + p1.h / 2;
+        const x2 = p2.cx, y2 = p2.cy + p2.h / 2;
+        d = 'M ' + x1 + ' ' + y1 + ' V ' + layout.loopChannelY + ' H ' + x2 + ' V ' + y2;
+        lx = (x1 + x2) / 2;
+        ly = layout.loopChannelY;
+      } else {
+        const x1 = p1.cx + p1.w / 2;
+        const y1 = p1.cy;
+        const x2 = p2.cx - p2.w / 2;
+        const y2 = p2.cy;
+        const midX = (x1 + x2) / 2;
+        d = 'M ' + x1 + ' ' + y1 + ' C ' + midX + ' ' + y1 + ', ' + midX + ' ' + y2 + ', ' + x2 + ' ' + y2;
+        lx = (x1 + x2) / 2;
+        ly = (y1 + y2) / 2;
+      }
+
+      const path = svgEl('path', {
+        d, fill: 'none', stroke: edge.loop ? '#b0433f' : '#7a5c8a', 'stroke-width': 2,
+        'marker-end': 'url(#arrowHead)'
+      });
+      if (edge.loop) path.setAttribute('stroke-dasharray', '6 4');
+      path.dataset.delay = (Math.max(p1.rank, p2.rank) * 90) + 100;
+      edgeGroup.appendChild(path);
+      edgeEls.push(path);
+
+      if (edge.label) {
+        const pillW = Math.max(34, edge.label.length * 6.6 + 14);
+        const pillG = svgEl('g', { transform: 'translate(' + (lx - pillW / 2) + ',' + (ly - 10) + ')' });
+        pillG.appendChild(svgEl('rect', {
+          width: pillW, height: 20, rx: 10,
+          fill: edge.loop ? '#f6dede' : '#f5a623', stroke: edge.loop ? '#b0433f' : '#4f1f63', 'stroke-width': 1
+        }));
+        const pillText = svgEl('text', {
+          x: pillW / 2, y: 14, 'text-anchor': 'middle',
+          'font-size': '10.5', 'font-weight': '700', fill: '#2d1040'
+        });
+        pillText.textContent = edge.label;
+        pillG.appendChild(pillText);
+        edgeGroup.appendChild(pillG);
+      }
+    });
+    svg.appendChild(edgeGroup);
+
+    // Nodes
+    const measureCanvas = document.createElement('canvas');
+    const measureCtx = measureCanvas.getContext('2d');
+    const nodeGroup = svgEl('g', { class: 'node-group' });
+
+    // Flowchart convention: a dead end must be visually marked as a
+    // terminator, never left looking like an ordinary process rectangle.
+    // Detected automatically (any node with zero outgoing edges, counting
+    // loop edges too since a loop-back continues the flow elsewhere) so
+    // authors can't forget to mark an ending — only plain 'process' nodes
+    // are auto-promoted; decision/success/reject/neutral/subprocess keep
+    // their explicitly-authored meaning.
+    const outDegreeAll = {};
+    flow.nodes.forEach(n => { outDegreeAll[n.id] = 0; });
+    flow.edges.forEach(e => { outDegreeAll[e.from] = (outDegreeAll[e.from] || 0) + 1; });
+
+    flow.nodes.forEach(node => {
+      const pos = positions[node.id];
+      const effectiveType = (node.type === 'process' && outDegreeAll[node.id] === 0) ? 'end' : node.type;
+      const style = TYPE_STYLE[effectiveType] || TYPE_STYLE.process;
+      // Positioning lives on the outer group as a plain SVG transform
+      // attribute. The CSS entrance animation (which sets a CSS `transform`)
+      // goes on a nested inner group instead — a CSS `transform` on the same
+      // element as the SVG `transform` attribute wins and silently replaces
+      // the positional translate, collapsing every node to one spot.
+      const outer = svgEl('g', {
+        class: 'flow-node',
+        transform: 'translate(' + (pos.cx - pos.w / 2) + ',' + (pos.cy - pos.h / 2) + ')',
+        tabindex: '0',
+        role: 'button',
+        'aria-label': node.label
+      });
+      outer.dataset.nodeId = node.id;
+      const g = svgEl('g', {
+        class: 'node-anim',
+        style: 'animation-delay:' + (pos.rank * 80) + 'ms'
+      });
+      outer.appendChild(g);
+
+      let shape;
+      const fillUrl = 'url(#' + style._gradId + ')';
+      if (style.shape === 'diamond') {
+        const w = pos.w, h = pos.h;
+        const points = [
+          (w / 2) + ',0',
+          w + ',' + (h / 2),
+          (w / 2) + ',' + h,
+          '0,' + (h / 2)
+        ].join(' ');
+        shape = svgEl('polygon', {
+          points, fill: fillUrl, stroke: style.stroke, 'stroke-width': 1.6,
+          class: 'node-shape', filter: 'url(#nodeDropShadow)'
+        });
+      } else if (style.shape === 'pill') {
+        shape = svgEl('rect', {
+          width: pos.w, height: pos.h, rx: pos.h / 2, ry: pos.h / 2,
+          fill: fillUrl, stroke: style.stroke, 'stroke-width': 1.6,
+          class: 'node-shape', filter: 'url(#nodeDropShadow)'
+        });
+      } else {
+        shape = svgEl('rect', {
+          width: pos.w, height: pos.h, rx: 10, ry: 10,
+          fill: fillUrl, stroke: style.stroke, 'stroke-width': 1.6,
+          class: 'node-shape', filter: 'url(#nodeDropShadow)'
+        });
+      }
+      g.appendChild(shape);
+
+      // Predefined-process convention: double vertical bars near the left
+      // and right edges signal "see the other documented flow" rather than
+      // a first-class action performed here.
+      if (style.shape === 'subprocess') {
+        const barInset = 10;
+        g.appendChild(svgEl('line', { x1: barInset, y1: 5, x2: barInset, y2: pos.h - 5, stroke: style.stroke, 'stroke-width': 1.6 }));
+        g.appendChild(svgEl('line', { x1: pos.w - barInset, y1: 5, x2: pos.w - barInset, y2: pos.h - 5, stroke: style.stroke, 'stroke-width': 1.6 }));
+      }
+
+      const isDiamond = style.shape === 'diamond';
+      const textMaxWidth = isDiamond ? pos.w * 0.62 : (style.shape === 'subprocess' ? pos.w - 40 : pos.w - 26);
+      const fontSize = isDiamond ? 11.5 : 12;
+      const fontWeight = isDiamond ? '700' : '600';
+      const font = fontWeight + ' ' + fontSize + 'px "Segoe UI", Helvetica, Arial, sans-serif';
+      const lines = wrapLabel(measureCtx, node.label, textMaxWidth, font).slice(0, 4);
+      const lineHeight = fontSize * 1.28;
+      const totalTextH = lines.length * lineHeight;
+      const startY = pos.h / 2 - totalTextH / 2 + lineHeight * 0.78;
+
+      const textEl = svgEl('text', {
+        x: pos.w / 2, 'text-anchor': 'middle',
+        'font-size': fontSize, 'font-weight': fontWeight, fill: style.text,
+        'font-family': "'Segoe UI', Helvetica, Arial, sans-serif"
+      });
+      lines.forEach((line, li) => {
+        const tspan = svgEl('tspan', { x: pos.w / 2, y: startY + li * lineHeight });
+        tspan.textContent = line;
+        textEl.appendChild(tspan);
+      });
+      g.appendChild(textEl);
+
+      // Type badge (top-left corner)
+      if (!isDiamond) {
+        const lane = flow.lanes.find(l => l.id === node.lane);
+        const badgeText = style.icon || (lane ? lane.icon : '');
+        if (badgeText) {
+          const badgeG = svgEl('g', { transform: 'translate(14,4)' });
+          badgeG.appendChild(svgEl('circle', { r: 9, fill: 'rgba(255,255,255,0.18)' }));
+          const badgeTxt = svgEl('text', {
+            'text-anchor': 'middle', y: 4, 'font-size': style.icon ? 10 : 9, fill: style.text
+          });
+          badgeTxt.textContent = badgeText;
+          badgeG.appendChild(badgeTxt);
+          g.appendChild(badgeG);
+        }
+      }
+
+      // Click hint ("i" info circle, bottom-right)
+      const hintG = svgEl('g', { class: 'node-hint', transform: 'translate(' + (pos.w - 12) + ',' + (pos.h - 10) + ')' });
+      hintG.appendChild(svgEl('circle', { r: 8, fill: '#ffffff', opacity: '0.92' }));
+      const hintTxt = svgEl('text', { 'text-anchor': 'middle', y: 3.5, 'font-size': '10', 'font-weight': '700', fill: style.stroke === '#4f1f63' ? '#4f1f63' : '#4f1f63' });
+      hintTxt.textContent = 'i';
+      hintG.appendChild(hintTxt);
+      g.appendChild(hintG);
+
+      outer.addEventListener('click', () => openNodeModal(flow, node.id));
+      outer.addEventListener('keydown', (evt) => {
+        if (evt.key === 'Enter' || evt.key === ' ') {
+          evt.preventDefault();
+          openNodeModal(flow, node.id);
+        }
+      });
+
+      nodeGroup.appendChild(outer);
+    });
+
+    svg.appendChild(nodeGroup);
+    diagramScroll.appendChild(svg);
+
+    // Animate edges drawing in after nodes settle
+    edgeEls.forEach(path => {
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+    });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        edgeEls.forEach(path => {
+          const delay = path.dataset.delay || 0;
+          path.style.transition = 'stroke-dashoffset 0.6s ease ' + delay + 'ms';
+          path.style.strokeDashoffset = '0';
+        });
+      });
+    });
+  }
+
+  function openNodeModal(flow, nodeId) {
+    currentModalNodes = flow.nodes;
+    currentModalIndex = flow.nodes.findIndex(n => n.id === nodeId);
+    const lane = flow.lanes.find(l => l.id === flow.nodes[currentModalIndex].lane);
+    modalRole.textContent = (lane ? lane.icon + ' ' : '') + (lane ? lane.label : '');
+    updateModalContent(flow);
+    modalOverlay.classList.add('show');
+  }
+
+  function updateModalContent(flow) {
+    const node = currentModalNodes[currentModalIndex];
+    const lane = flow.lanes.find(l => l.id === node.lane);
+    modalRole.textContent = (lane ? lane.icon + ' ' : '') + (lane ? lane.label : '');
+    modalTitle.textContent = node.label;
+    modalBody.textContent = node.detail;
+    modalStepCount.textContent = 'Step ' + (currentModalIndex + 1) + ' of ' + currentModalNodes.length;
+    modalPrev.disabled = currentModalIndex <= 0;
+    modalNext.disabled = currentModalIndex >= currentModalNodes.length - 1;
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove('show');
+  }
+
+  modalClose.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (evt) => {
+    if (evt.target === modalOverlay) closeModal();
+  });
+  document.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Escape' && modalOverlay.classList.contains('show')) closeModal();
+  });
+  modalPrev.addEventListener('click', () => {
+    if (currentModalIndex > 0) {
+      currentModalIndex--;
+      updateModalContent(flows[currentFlowIndex]);
+    }
+  });
+  modalNext.addEventListener('click', () => {
+    if (currentModalIndex < currentModalNodes.length - 1) {
+      currentModalIndex++;
+      updateModalContent(flows[currentFlowIndex]);
+    }
+  });
+
+  async function renderFlow(index) {
+    const flow = flows[index];
+    const token = ++renderToken;
+
+    flowPanel.classList.remove('visible');
+
+    await new Promise(resolve => setTimeout(resolve, 220));
+    if (token !== renderToken) return;
+
+    flowTitle.textContent = flow.title;
+    flowDescription.textContent = flow.description;
+
+    try {
+      renderDiagram(flow);
+    } catch (err) {
+      diagramScroll.innerHTML = '<p style="color:#c0392b;padding:20px;">Unable to render diagram.</p>';
+      console.error('Diagram render error:', err);
+    }
+
+    requestAnimationFrame(() => {
+      flowPanel.classList.add('visible');
+    });
+  }
+
+  function selectFlow(index) {
+    if (index === currentFlowIndex && flowPanel.classList.contains('visible')) return;
+    currentFlowIndex = index;
+
+    document.querySelectorAll('.nav-item').forEach((item, i) => {
+      item.classList.toggle('active', i === index);
+    });
+
+    closeModal();
+    renderFlow(index);
+    closeSidebarMobile();
+  }
+
+  function closeSidebarMobile() {
+    sidebar.classList.remove('open');
+    sidebarOverlay.classList.remove('show');
+  }
+
+  hamburgerBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    sidebarOverlay.classList.toggle('show');
+  });
+
+  sidebarOverlay.addEventListener('click', closeSidebarMobile);
+
+  function setCurrentDate() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = now.toLocaleDateString(undefined, options);
+  }
+
+  function exportAsPng() {
+    const svgEl = diagramScroll.querySelector('svg');
+    if (!svgEl) return;
+
+    const flow = flows[currentFlowIndex];
+    const svgClone = svgEl.cloneNode(true);
+    svgClone.setAttribute('xmlns', SVG_NS);
+
+    const width = parseFloat(svgEl.getAttribute('width'));
+    const height = parseFloat(svgEl.getAttribute('height'));
+
+    // The lane labels are a separate pinned HTML column (not part of the
+    // SVG), so a raw SVG export would lose lane context. Redraw that label
+    // strip onto the canvas alongside the diagram so the PNG is self-contained.
+    const layout = computeLayout(flow);
+    const labelColWidth = 170;
+
+    const scale = 2;
+    const svgData = new XMLSerializer().serializeToString(svgClone);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.onload = function () {
+      const canvas = document.createElement('canvas');
+      canvas.width = (labelColWidth + width) * scale;
+      canvas.height = height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(scale, scale);
+
+      flow.lanes.forEach((lane, i) => {
+        const laneY = layout.laneY[i];
+        const laneH = layout.laneHeights[i];
+        ctx.fillStyle = i % 2 === 0 ? '#fbf8fd' : '#ffffff';
+        ctx.fillRect(0, laneY, labelColWidth, laneH);
+        ctx.fillStyle = lane.accent;
+        ctx.fillRect(0, laneY, 4, laneH);
+
+        ctx.fillStyle = '#4f1f63';
+        ctx.font = '700 12px "Segoe UI", Helvetica, Arial, sans-serif';
+        const textLines = wrapLabel(ctx, lane.label, labelColWidth - 40, ctx.font);
+        const lineHeight = 15;
+        const startY = laneY + laneH / 2 - ((textLines.length - 1) * lineHeight) / 2 + 4;
+        ctx.font = '16px "Segoe UI", Helvetica, Arial, sans-serif';
+        ctx.fillText(lane.icon, 14, laneY + laneH / 2 + 5);
+        ctx.font = '700 12px "Segoe UI", Helvetica, Arial, sans-serif';
+        textLines.forEach((line, li) => {
+          ctx.fillText(line, 38, startY + li * lineHeight);
+        });
+      });
+
+      ctx.strokeStyle = '#ece3f2';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(labelColWidth, 0);
+      ctx.lineTo(labelColWidth, height);
+      ctx.stroke();
+
+      ctx.drawImage(img, labelColWidth, 0, width, height);
+      URL.revokeObjectURL(url);
+
+      canvas.toBlob(function (blob) {
+        const link = document.createElement('a');
+        link.download = flow.title.replace(/[^a-z0-9]+/gi, '_') + '.png';
+        link.href = URL.createObjectURL(blob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      }, 'image/png');
+    };
+    img.onerror = function () {
+      console.error('Failed to load SVG image for PNG export.');
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }
+
+  function copyMermaidCode() {
+    const flow = flows[currentFlowIndex];
+    const tooltip = document.getElementById('copyTooltip');
+    const originalLabel = tooltip.textContent;
+
+    const showCopied = () => {
+      tooltip.textContent = 'Copied!';
+      tooltip.classList.add('persist');
+      setTimeout(() => {
+        tooltip.classList.remove('persist');
+        tooltip.textContent = originalLabel;
+      }, 1400);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(flow.mermaidCode).then(showCopied).catch(() => {
+        fallbackCopy(flow.mermaidCode);
+        showCopied();
+      });
+    } else {
+      fallbackCopy(flow.mermaidCode);
+      showCopied();
+    }
+  }
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+    }
+    document.body.removeChild(textarea);
+  }
+
+  document.getElementById('exportPngBtn').addEventListener('click', exportAsPng);
+  document.getElementById('copyCodeBtn').addEventListener('click', copyMermaidCode);
+
+  // ---------------------------------------------------------------------
+  // Flowchart-convention checks — dev-time aid only (console.warn, never
+  // blocks rendering). Catches the mistakes that are easy to make by hand
+  // when authoring new flow data: unlabeled decision branches, a decision
+  // with only one way out, a plain process box quietly doing conditional
+  // branching (only diamonds may), duplicate edges, and missing/multiple
+  // entry points. Run this over every flow once at load, not just the one
+  // currently on screen, so mistakes in flows you haven't clicked into yet
+  // still surface.
+  // ---------------------------------------------------------------------
+  function validateFlow(flow) {
+    const warn = (msg) => console.warn('[' + flow.title + '] ' + msg);
+    const byId = {};
+    flow.nodes.forEach(n => { byId[n.id] = n; });
+
+    const outEdges = {};
+    flow.nodes.forEach(n => { outEdges[n.id] = []; });
+    flow.edges.forEach(e => { (outEdges[e.from] || (outEdges[e.from] = [])).push(e); });
+
+    flow.nodes.forEach(node => {
+      const outs = outEdges[node.id] || [];
+      if (node.type === 'decision') {
+        if (outs.length < 2) {
+          warn('Decision "' + node.label + '" has ' + outs.length + ' outgoing path(s) — a decision needs at least 2.');
+        }
+        outs.forEach(e => {
+          if (!e.label) warn('Decision "' + node.label + '" has an unlabeled branch to "' + (byId[e.to] || {}).label + '" — every decision branch should say what condition it represents (e.g. "Yes"/"No").');
+        });
+      } else if (outs.length > 1 && outs.some(e => e.label)) {
+        warn('Node "' + node.label + '" (type: ' + node.type + ') has labeled branches but isn\'t a decision — conditional branching should only come from a diamond. If these are simultaneous/parallel actions rather than a condition, remove the labels; if one is chosen based on a condition, change this node to type "decision".');
+      }
+    });
+
+    const startNodes = flow.nodes.filter(n => n.type === 'start');
+    if (startNodes.length === 0) warn('No node with type "start" — every flow should have exactly one clear entry point.');
+    if (startNodes.length > 1) warn('Multiple "start" nodes (' + startNodes.map(n => n.label).join(', ') + ') — usually a flow should have exactly one entry point.');
+
+    const seen = new Set();
+    flow.edges.forEach(e => {
+      const key = e.from + '->' + e.to + ':' + (e.label || '');
+      if (seen.has(key)) warn('Duplicate edge ' + e.from + ' -> ' + e.to + (e.label ? ' ("' + e.label + '")' : '') + '.');
+      seen.add(key);
+    });
+  }
+
+  buildNav();
+  setCurrentDate();
+  flows.forEach(validateFlow);
+  renderFlow(0);
+</script>
