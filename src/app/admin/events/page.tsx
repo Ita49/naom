@@ -35,11 +35,63 @@ export default async function AdminEventsPage() {
     .select("event_id, verified_total, pending_total, pending_count");
   const totalsById = new Map((totals ?? []).map((t) => [t.event_id, t]));
 
+  // Roll-up across every event: what's been confirmed in total, how many
+  // contributions are still waiting on the treasurer, and how many drives
+  // are currently open to new contributions.
+  const totalConfirmed = (totals ?? []).reduce(
+    (sum, t) => sum + Number(t.verified_total ?? 0),
+    0
+  );
+  const totalPending = (totals ?? []).reduce(
+    (sum, t) => sum + Number(t.pending_count ?? 0),
+    0
+  );
+  const openCount = (events ?? []).filter((e) => e.status === "open").length;
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Events</h1>
         <CreateEventDialog members={members ?? []} />
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xs font-normal">
+              Total confirmed
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl font-semibold tabular-nums">
+              ₦{totalConfirmed.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xs font-normal">
+              Awaiting review
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl font-semibold tabular-nums">{totalPending}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xs font-normal">Open events</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl font-semibold tabular-nums">
+              {openCount}
+              <span className="text-muted-foreground text-xs font-normal">
+                {" "}
+                / {events?.length ?? 0}
+              </span>
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {events && events.length > 0 ? (
