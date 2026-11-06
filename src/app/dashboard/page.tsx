@@ -77,6 +77,20 @@ export default async function MemberDashboard() {
 
       <Card>
         <CardHeader>
+          <CardTitle className="text-base">Contribution events</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between gap-2">
+          <p className="text-muted-foreground text-sm">
+            Support drives and one-off collections.
+          </p>
+          <Button asChild variant="outline" size="sm" className="w-fit">
+            <Link href="/dashboard/events">View events</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Recent payments</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">

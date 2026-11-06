@@ -130,6 +130,22 @@ export default async function AdminHome() {
             </Button>
           </CardContent>
         </Card>
+
+        <Card className="col-span-2">
+          <CardHeader>
+            <CardTitle className="text-sm font-normal">
+              Contribution events
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between gap-2">
+            <p className="text-muted-foreground text-sm">
+              One-off drives — create, share a link, verify receipts.
+            </p>
+            <Button asChild size="sm" variant="outline" className="w-fit">
+              <Link href="/admin/events">Manage events</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
